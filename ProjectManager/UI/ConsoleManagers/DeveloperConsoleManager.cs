@@ -7,16 +7,18 @@ namespace UI.ConsoleManagers;
 
 public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, IConsoleManager<User>
 {
-    public DeveloperConsoleManager(IDeveloperService service) : base(service)
+    private readonly UserConsoleManager _userConsoleManager;
+    public DeveloperConsoleManager(IDeveloperService service, UserConsoleManager userConsoleManager) : base(service)
     {
+        _userConsoleManager = userConsoleManager;
     }
 
     public override async Task PerformOperationsAsync()
     {
         Dictionary<string, Func<Task>> actions = new Dictionary<string, Func<Task>>
         {
-            { "1", DisplayInfoDeveloper },
-            { "2", UpdateInfoDeveloper }
+            { "1", DisplayDeveloperAsync },
+            { "2", UpdateDeveloperAsync }
             // { "4", CreateProjectAsync },
             // { "5", UpdateProjectAsync },
             // { "6", DeleteProjectAsync },
@@ -41,13 +43,8 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
             else Console.WriteLine("Invalid operation number.");
         }
     }
-
-    public async Task CreateDeveloperAsync()
-    {
-        
-    }
-
-    public async Task DisplayInfoDeveloper()
+    
+    public async Task DisplayDeveloperAsync()
     {
         IEnumerable<User> developers = (await GetAllAsync()).Where(u => u.Role == UserRole.Developer);
 
@@ -58,7 +55,7 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
         }
     }
 
-    public async Task UpdateInfoDeveloper()
+    public async Task UpdateDeveloperAsync()
     {
         Console.Write("Enter your username.\nYour username: ");
         string userName = Console.ReadLine()!;
@@ -85,10 +82,12 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
                     Console.WriteLine("Username was successfully edited");
                     break;
                 case "2":
-                    await UpdateUserPassword(getUser);
+                    await _userConsoleManager.UpdateUserPassword(getUser);
                     break;
                 case "3":
-
+                    Console.Write("Please, edit your email.\nYour email: ");
+                    getUser.Email = Console.ReadLine()!;
+                    Console.WriteLine("Your email was successfully edited");
                     break;
                 case "4":
                     return;

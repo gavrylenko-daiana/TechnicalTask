@@ -5,8 +5,8 @@ namespace BLL.Abstractions.Interfaces;
 public interface IUserService : IGenericService<User>
 {
     Task<User> Authenticate(string username, string email, string password);
-        
-    Task<User> GetUserByUsername(string username);
+
+    Task<User> GetUserByUsernameOrEmail(string input);
         
     Task<List<User>> GetUsersByRole(string role);
 

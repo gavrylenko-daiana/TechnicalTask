@@ -11,14 +11,15 @@ public class StakeHolderService : GenericService<User>, IStakeHolderService
     {
     }
 
-    public async Task<User> GetStakeHolderByUsername(string? username)
+    public async Task<User> GetStakeHolderByUsernameOrEmail(string? input)
     {
-        if (string.IsNullOrWhiteSpace(username)) throw new ArgumentNullException(nameof(username));
+        if (string.IsNullOrWhiteSpace(input)) throw new ArgumentNullException(nameof(input));
 
-        User developer = await GetByPredicate(a => a.Role == UserRole.StakeHolder && a.Username == username);
-            
-        if (developer == null) throw new ArgumentNullException(nameof(developer));
+        User stakeHolder = await GetByPredicate(u => u.Role == UserRole.StakeHolder && (u.Username == input  || u.Email == input));
+        
+        if (stakeHolder == null) throw new ArgumentNullException(nameof(stakeHolder));
 
-        return developer;
+        return stakeHolder;
     }
+
 }

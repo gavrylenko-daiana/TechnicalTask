@@ -28,11 +28,11 @@ public class UserService : GenericService<User>, IUserService
         return user;
     }
 
-    public async Task<User> GetUserByUsername(string username)
+    public async Task<User> GetUserByUsernameOrEmail(string input)
     {
-        if (string.IsNullOrWhiteSpace(username)) throw new ArgumentNullException(nameof(username));
+        if (string.IsNullOrWhiteSpace(input)) throw new ArgumentNullException(nameof(input));
 
-        User user = await GetByPredicate(u => u.Username == username);
+        User user = await GetByPredicate(u => u.Username == input || u.Email == input);
         
         if (user == null) throw new ArgumentNullException(nameof(user));
 

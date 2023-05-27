@@ -6,11 +6,13 @@ namespace UI;
 
 public class AppManager
 {
+    private readonly InitialConsoleManager _helperManager;
     private readonly UserConsoleManager _userManager;
 
-    public AppManager(UserConsoleManager userManager)
+    public AppManager(UserConsoleManager userManager, InitialConsoleManager helperConsoleManager)
     {
         _userManager = userManager;
+        _helperManager = helperConsoleManager;
     }
 
     public async Task StartAsync()
@@ -28,10 +30,10 @@ public class AppManager
             switch (input)
             {
                 case "1":
-                    await _userManager.AuthenticateUser();
+                    await _helperManager.AuthenticateUser();
                     break;
                 case "2":
-                    await _userManager.CreateUserAsync();
+                    await _helperManager.CreateUserAsync();
                     break;
                 case "3":
                     return;

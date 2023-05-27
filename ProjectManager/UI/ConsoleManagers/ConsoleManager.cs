@@ -11,7 +11,6 @@ public abstract class ConsoleManager<TService, TEntity>
     where TService : IGenericService<TEntity>
 {
     protected readonly TService Service;
-    private readonly IUserService _userService;
 
     protected ConsoleManager(TService service)
     {
@@ -106,93 +105,5 @@ public abstract class ConsoleManager<TService, TEntity>
         {
             Console.WriteLine($"Error in DeleteAsync: {ex.Message}");
         }
-    }
-    
-     public async Task UpdateUserPassword(User getAdmin)
-    {
-        string check = String.Empty;
-
-        while (check != "exit")
-        {
-            Console.WriteLine("Write \n" +
-                              "'exit' if you don't want to change your password \n" +
-                              "'forgot' if you forgot your password.");
-            check = Console.ReadLine()!;
-            if (check == "exit") break;
-            if (check == "forgot")
-            {
-                await ForgotUserPassword();
-                break;
-            }
-
-            Console.Write("Enter you current password.\nYour password:");
-            string password = Console.ReadLine()!;
-            password = Service.GetPasswordHash(password);
-
-            if (getAdmin.PasswordHash == password)
-            {
-                Console.Write("Enter your new password.\nYour Password: ");
-                string newUserPassword = Console.ReadLine()!;
-                newUserPassword = Service.GetPasswordHash(newUserPassword);
-
-                await _userService.UpdatePassword(getAdmin.Id, newUserPassword);
-            }
-            else
-            {
-                Console.WriteLine($"You entered the wrong password");
-            }
-        }
-    }
-
-    private async Task ForgotUserPassword()
-    {
-        Console.Write("Please, write your email:\nEmail:");
-        string email = Console.ReadLine()!;
-        var getUser = await _userService.GetByPredicate(u => u.Email == email);
-
-        if (getUser == null) throw new ArgumentException("User was not found");
-
-        int emailCode = await SendMessageEmailUser(email);
-        Console.WriteLine("Write the four-digit number that came to your email:");
-        int userCode = int.Parse(Console.ReadLine()!);
-
-        if (userCode == emailCode)
-        {
-            Console.Write("Enter your new password.\nNew Password: ");
-            string newUserPassword = Console.ReadLine()!;
-            newUserPassword = Service.GetPasswordHash(newUserPassword);
-
-            await _userService.UpdatePassword(getUser.Id, newUserPassword);
-        }
-        else
-        {
-            throw new ArgumentException("You entered the wrong code.");
-        }
-    }
-
-    public async Task<int> SendMessageEmailUser(string email)
-    {
-        Random rand = new Random();
-        int emailCode = rand.Next(1000, 9999);
-        string fromMail = "dayana01001@gmail.com";
-        string fromPassword = "oxizguygokwxgxgb";
-
-        MailMessage message = new MailMessage();
-        message.From = new MailAddress(fromMail);
-        message.Subject = "Verify code for update password.";
-        message.To.Add(new MailAddress($"{email}"));
-        message.Body = $"<html><body> Your code: {emailCode} </body></html>";
-        message.IsBodyHtml = true;
-
-        var smtpClient = new SmtpClient("smtp.gmail.com")
-        {
-            Port = 587,
-            Credentials = new NetworkCredential(fromMail, fromPassword),
-            EnableSsl = true,
-        };
-        
-        smtpClient.Send(message);
-
-        return emailCode;
     }
 }
