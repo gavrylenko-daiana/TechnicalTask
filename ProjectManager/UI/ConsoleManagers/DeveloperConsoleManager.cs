@@ -9,15 +9,11 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
 {
     private readonly DevelopTasksConsoleManager _developTasksManager;
     private readonly UserConsoleManager _userConsoleManager;
-    private readonly ProjectTaskConsoleManager _projectTaskManager;
-    private readonly ProjectConsoleManager _projectManager;
 
     public DeveloperConsoleManager(IDeveloperService service, UserConsoleManager userConsoleManager,
-        ProjectTaskConsoleManager projectTaskManager, ProjectConsoleManager projectManager, DevelopTasksConsoleManager developTasksManager) : base(service)
+        DevelopTasksConsoleManager developTasksManager) : base(service)
     {
         _userConsoleManager = userConsoleManager;
-        _projectTaskManager = projectTaskManager;
-        _projectManager = projectManager;
         _developTasksManager = developTasksManager;
     }
 
@@ -27,10 +23,7 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
         {
             { "1", DisplayDeveloperAsync },
             { "2", UpdateDeveloperAsync },
-            { "3", AssignTasksToDevelopersAsync },
-            // { "4", ChooseTaskAsync },
-            // { "5", UpdateProjectAsync },
-            // { "6", DeleteProjectAsync },
+            { "3", AssignTasksToDevelopersAsync }
         };
 
         while (true)
@@ -39,15 +32,12 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
             Console.WriteLine("1. Display information about you");
             Console.WriteLine("2. Update your information");
             Console.WriteLine("3. Select tasks");
-            Console.WriteLine("4. Create new project");
-            Console.WriteLine("5. Update your project");
-            Console.WriteLine("6. Delete your project");
-            Console.WriteLine("7. Exit");
+            Console.WriteLine("4. Exit");
 
             Console.Write("Enter the operation number: ");
             string input = Console.ReadLine()!;
 
-            if (input == "5") break;
+            if (input == "4") break;
             if (actions.ContainsKey(input)) await actions[input]();
             else Console.WriteLine("Invalid operation number.");
         }

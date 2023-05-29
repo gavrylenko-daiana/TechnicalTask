@@ -7,8 +7,8 @@ namespace UI.ConsoleManagers;
 
 public class DevelopTasksConsoleManager : ConsoleManager<IDeveloperService, User>, IConsoleManager<User>
 {
-    private ProjectTaskConsoleManager _projectTaskManager;
-    private ProjectConsoleManager _projectManager;
+    private readonly ProjectTaskConsoleManager _projectTaskManager;
+    private readonly ProjectConsoleManager _projectManager;
     
     public DevelopTasksConsoleManager(IDeveloperService service, ProjectTaskConsoleManager projectTaskManager, ProjectConsoleManager projectManager) : base(service)
     {

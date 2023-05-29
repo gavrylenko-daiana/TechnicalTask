@@ -9,7 +9,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
 {
     private readonly TesterConsoleManager _testerManager;
     private readonly ProjectTaskConsoleManager _projectTaskManager;
-    private DevelopTasksConsoleManager _developTasksManager;
+    private readonly DevelopTasksConsoleManager _developTasksManager;
 
     public ProjectConsoleManager(IProjectService service, ProjectTaskConsoleManager projectTaskManager, TesterConsoleManager testerManager, DevelopTasksConsoleManager developTasksManager) : base(service)
     {
