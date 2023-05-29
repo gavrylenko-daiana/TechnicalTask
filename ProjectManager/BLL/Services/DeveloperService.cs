@@ -11,14 +11,14 @@ public class DeveloperService : UserService, IDeveloperService
     {
     }
 
-    public async Task<User> GetDeveloperByUsername(string? username)
+    public async Task<User> GetDeveloperByUsernameOrEmail(string? input)
     {
-        if (string.IsNullOrWhiteSpace(username)) throw new ArgumentNullException(nameof(username));
+        if (string.IsNullOrWhiteSpace(input)) throw new ArgumentNullException(nameof(input));
 
-        User developer = await GetByPredicate(a => a.Role == UserRole.Developer && a.Username == username);
-            
-        if (developer == null) throw new ArgumentNullException(nameof(developer));
+        User stakeHolder = await GetByPredicate(u => u.Role == UserRole.Developer && (u.Username == input  || u.Email == input));
+        
+        if (stakeHolder == null) throw new ArgumentNullException(nameof(stakeHolder));
 
-        return developer;
+        return stakeHolder;
     }
 }

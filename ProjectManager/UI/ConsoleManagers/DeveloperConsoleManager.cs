@@ -19,7 +19,7 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
         {
             { "1", DisplayDeveloperAsync },
             { "2", UpdateDeveloperAsync }
-            // { "4", CreateProjectAsync },
+            // { "4", ChooseTaskAsync },
             // { "5", UpdateProjectAsync },
             // { "6", DeleteProjectAsync },
         };
@@ -52,6 +52,8 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
         {
             Console.WriteLine($"Username: {developer.Username}");
             Console.WriteLine($"Email: {developer.Email}");
+            
+            
         }
     }
 
@@ -60,8 +62,7 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
         Console.Write("Enter your username.\nYour username: ");
         string userName = Console.ReadLine()!;
 
-        User getUser = await Service.GetDeveloperByUsername(userName);
-        if (getUser == null) throw new ArgumentNullException(nameof(getUser));
+        User getUser = await Service.GetDeveloperByUsernameOrEmail(userName);
 
         while (true)
         {

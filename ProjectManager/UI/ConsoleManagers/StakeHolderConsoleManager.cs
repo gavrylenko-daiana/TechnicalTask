@@ -21,7 +21,7 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
         {
             { "1", UpdateStakeHolderAsync },
             { "2", CreateProjectAsync },
-            { "3", DisplayAllProjectsAsync },
+            { "3", DisplayInfoAsync },
             // { "4", UpdateProjectAsync },
             // { "5", DeleteProjectAsync },
         };
@@ -51,7 +51,7 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
         string userInput = Console.ReadLine()!;
         
         User getUser = await Service.GetStakeHolderByUsernameOrEmail(userInput);
-        await DisplayInfoAsync(getUser);
+        await DisplayInfoStakeHolderAndProjectAsync(getUser);
         
         while (true)
         {
@@ -88,32 +88,30 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
         }
     }
 
-    private async Task DisplayInfoAsync(User user)
+    private async Task DisplayInfoAsync()
+    {
+        Console.Write("Enter your username or email.\nYour username or email: ");
+        string userInput = Console.ReadLine()!;
+        
+        User getUser = await Service.GetStakeHolderByUsernameOrEmail(userInput);
+        await DisplayInfoStakeHolderAndProjectAsync(getUser);
+    }
+
+    private async Task DisplayInfoStakeHolderAndProjectAsync(User user)
     {
         Console.Write($"Your username: {user.Username}\n" +
                           $"Your email: {user.Email}\n" +
-                          $"Your project(s):");
+                          $"Your project(s):\n");
 
-        if (user.Projects == null)
-        {
-            Console.WriteLine("You have no projects.");
-        }
-        else
-        {
-            foreach (var project in user.Projects)
-            {
-                Console.WriteLine($"{project}");
-            }
-        }
+        await _projectManager.DisplayAllProjectsAsync();
     }
 
     public async Task CreateProjectAsync()
     {
+        Console.Write("Enter your username.\nUsername: ");
+        string userInput = Console.ReadLine()!;
         
-    }
-    
-    private async Task DisplayAllProjectsAsync()
-    {
-        await _projectManager.DisplayAllProjectsAsync();
+        User getUser = await Service.GetStakeHolderByUsernameOrEmail(userInput);
+        await _projectManager.CreateNewProjectAsync(getUser);
     }
 }

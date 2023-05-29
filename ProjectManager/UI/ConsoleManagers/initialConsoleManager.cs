@@ -53,7 +53,7 @@ public class InitialConsoleManager : ConsoleManager<IUserService, User>, IConsol
         Console.Write("Please, write your username.\nUsername: ");
         string userName = Console.ReadLine()!;
 
-        Console.WriteLine("Please, write your email.\nEmail: ");
+        Console.Write("Please, write your email.\nEmail: ");
         string userEmail = Console.ReadLine()!;
 
         Console.Write("Please, write your password.\nPassword: ");

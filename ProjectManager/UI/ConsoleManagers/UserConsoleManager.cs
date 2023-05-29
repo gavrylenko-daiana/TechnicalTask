@@ -48,7 +48,7 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
         foreach (var user in users)
         {
             Console.WriteLine($"\nName: {user.Username}" +
-                              $"Email: {user.Email}" +
+                              $"\nEmail: {user.Email}" +
                               $"\nRole: {user.Role}");
         }
     }

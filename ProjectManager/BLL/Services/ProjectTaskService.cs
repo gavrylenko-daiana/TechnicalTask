@@ -9,31 +9,9 @@ public class ProjectTaskService : GenericService<ProjectTask>, IProjectTaskServi
     public ProjectTaskService(IRepository<ProjectTask> repository) : base(repository)
     {
     }
-    
-    public Task Add(ProjectTask obj)
-    {
-        throw new NotImplementedException();
-    }
 
-    public Task Delete(Guid id)
+    public ICollection<List<ProjectTask>> GetTasksByProject(Project project)
     {
-        throw new NotImplementedException();
-    }
-
-    public Task<ProjectTask> GetById(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
-    
-
-    public Task<ProjectTask> GetByPredicate(Func<ProjectTask, bool> predicate)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task Update(Guid id, ProjectTask obj)
-    {
-        throw new NotImplementedException();
+        return project.ClaimTaskDeveloper.Values;
     }
 }
