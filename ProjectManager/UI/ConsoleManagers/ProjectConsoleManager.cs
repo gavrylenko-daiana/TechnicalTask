@@ -9,6 +9,8 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
 {
     private readonly TesterConsoleManager _testerManager;
     private readonly ProjectTaskConsoleManager _projectTaskManager;
+    private readonly DeveloperConsoleManager _developerManager;
+    
     public ProjectConsoleManager(IProjectService service, ProjectTaskConsoleManager projectTaskManager, TesterConsoleManager testerManager) : base(service)
     {
         _projectTaskManager = projectTaskManager;
@@ -42,8 +44,8 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         Console.WriteLine("Create project");
         Console.Write("Please, write name of project.\nName: ");
         string projectName = Console.ReadLine()!;
-        string projectDescript = String.Empty;
 
+        string projectDescript;
         Console.WriteLine("Optionally add a description to the project.\nEnter '1' - add");
         char option = Convert.ToChar(Console.ReadLine()!);
 
@@ -51,20 +53,20 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
             projectDescript = Console.ReadLine()!;
         else
             projectDescript = "empty";
-        
+
         Console.Write("Enter a due date for the task.\nDue date (dd.MM.yyyy): ");
         string[] date = Console.ReadLine()!.Split('.');
         DateTime enteredDate = new DateTime(int.Parse(date[2]), int.Parse(date[1]), int.Parse(date[0]));
-
-        //choose tester ------
-
+        
         await _testerManager.DisplayAllTester();
         Console.Write("Write the username of the person who will be the tester for this project.\nTester: ");
         string testerName = Console.ReadLine()!;
 
-        var tester = await _testerManager.GetByPredicateAsync(u => u.Username == testerName && u.Role == UserRole.Tester);
-
-        //-------------
+        var tester = await _testerManager.GetTesterByName(testerName);
+        var tasks = await _projectTaskManager.CreateTaskAsync();
+        var countAllTasks = tasks.Count;
+        
+        IDictionary<User, List<ProjectTask>> claimTasksDeveloper = await _developerManager.AssignTasksToDevelopersAsync();
 
         await CreateAsync(new Project
         {
@@ -73,10 +75,17 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
             Progress = Progress.Planned,
             StakeHolder = getUser,
             DueDates = enteredDate,
-            
+            Tester = tester,
+            CountAllTasks = countAllTasks,
+            ClaimTaskDeveloper = claimTasksDeveloper
         });
+    }
 
-        // ICollection<List<ProjectTask>> tasks = await _projectTaskManager.CreateTaskAsync();
+    public async Task<Project> GetProjectByName(string projectName)
+    {
+        var project = await Service.GetProjectByName(projectName);
+
+        return project;
     }
     
     public override Task PerformOperationsAsync()

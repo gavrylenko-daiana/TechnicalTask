@@ -22,6 +22,13 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
             Console.WriteLine($"{tester.Email}\n");
         }
     }
+
+    public async Task<User> GetTesterByName(string name)
+    {
+        var tester = await Service.GetTesterByName(name);
+
+        return tester;
+    }
     
     public override Task PerformOperationsAsync()
     {

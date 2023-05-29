@@ -21,4 +21,11 @@ public class DeveloperService : UserService, IDeveloperService
 
         return stakeHolder;
     }
+    
+    public async Task<IEnumerable<User>> GetAllDeveloper()
+    {
+        var developer = (await GetAll()).Where(u => u.Role == UserRole.Developer);
+
+        return developer;
+    }
 }

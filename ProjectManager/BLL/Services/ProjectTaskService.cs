@@ -10,8 +10,12 @@ public class ProjectTaskService : GenericService<ProjectTask>, IProjectTaskServi
     {
     }
 
-    public ICollection<List<ProjectTask>> GetTasksByProject(Project project)
+    public async Task<List<ProjectTask>> GetTasksByProject(Project project)
     {
-        return project.ClaimTaskDeveloper.Values;
+        var tasks = project.ClaimTaskDeveloper.Values
+            .SelectMany(tasks => tasks)
+            .ToList();
+
+        return tasks;
     }
 }

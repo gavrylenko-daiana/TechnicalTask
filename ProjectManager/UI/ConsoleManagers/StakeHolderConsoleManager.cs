@@ -35,10 +35,10 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
             Console.WriteLine("4. Update your project");
             Console.WriteLine("5. Delete your project");
             Console.WriteLine("6. Exit");
-    
+
             Console.Write("Enter the operation number: ");
             string input = Console.ReadLine()!;
-    
+
             if (input == "6") break;
             if (actions.ContainsKey(input)) await actions[input]();
             else Console.WriteLine("Invalid operation number.");
@@ -49,10 +49,10 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
     {
         Console.Write("Enter your username or email.\nYour username or email: ");
         string userInput = Console.ReadLine()!;
-        
+
         User getUser = await Service.GetStakeHolderByUsernameOrEmail(userInput);
         await DisplayInfoStakeHolderAndProjectAsync(getUser);
-        
+
         while (true)
         {
             Console.WriteLine("\nSelect which information you want to change: ");
@@ -85,6 +85,8 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
                     Console.WriteLine("Invalid operation number.");
                     break;
             }
+            
+            await UpdateAsync(getUser.Id, getUser);
         }
     }
 

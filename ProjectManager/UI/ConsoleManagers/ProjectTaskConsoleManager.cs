@@ -7,13 +7,13 @@ namespace UI.ConsoleManagers;
 
 public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, ProjectTask>, IConsoleManager<ProjectTask>
 {
-    private ProjectConsoleManager _projectManager;
     public ProjectTaskConsoleManager(IProjectTaskService service) : base(service)
     {
     }
 
-    public async Task<List<ProjectTask>> CreateTaskAsync(Project project)
+    public async Task<List<ProjectTask>> CreateTaskAsync()
     {
+        Project project = new Project();
         List<ProjectTask> tasks = new List<ProjectTask>();
         string exit = String.Empty;
         
@@ -53,10 +53,8 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
             }
             catch
             {
-                Console.WriteLine("Such a type of subscription does not exist!");
+                Console.WriteLine("Such a type of priority does not exist!");
             }
-            
-            
 
             await CreateAsync(new ProjectTask
             {
@@ -65,14 +63,42 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
                 DueDates = term,
                 Priority = priority,
             });
+
+            Console.WriteLine("Are you want to add next task in this project?\nWrite 'exit' - No, Press 'Enter' - yes");
+            exit = Console.ReadLine()!;
         }
 
         return tasks;
+    }
+
+    public async Task<List<ProjectTask>> GetTasksByProject(Project project)
+    {
+        List<ProjectTask> tasks = await Service.GetTasksByProject(project);
+
+        return tasks;
+    }
+
+    public async Task DisplayAllTaskByProject(List<ProjectTask> tasks)
+    {
+        foreach (var task in tasks)
+        {
+            Console.WriteLine($"Name: {task.Name}");
+            
+            if (!string.IsNullOrWhiteSpace(task.Description))
+                Console.WriteLine($"Description: {task.Description}");
+
+            if (task.Developer != null)
+                Console.WriteLine($"Developer performing task: {task.Developer}");
+
+            Console.WriteLine($"Tester: {task.Tester}");
+            Console.WriteLine($"Priority: {task.Priority}");
+            Console.WriteLine($"DueDates: {task.DueDates}");
+            Console.WriteLine($"Status: {task.Progress}\n");
+        }
     }
 
     public override Task PerformOperationsAsync()
     {
         throw new NotImplementedException();
     }
-    
 }

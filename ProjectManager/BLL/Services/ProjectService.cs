@@ -21,4 +21,11 @@ public class ProjectService : GenericService<Project>, IProjectService
         
         return getDevelopers;
     }
+
+    public async Task<Project> GetProjectByName(string projectName)
+    {
+        Project project = await GetByPredicate(p => p.Name == projectName);
+
+        return project;
+    }
 }

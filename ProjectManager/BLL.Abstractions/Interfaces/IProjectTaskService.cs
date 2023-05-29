@@ -4,5 +4,5 @@ namespace BLL.Abstractions.Interfaces;
 
 public interface IProjectTaskService : IGenericService<ProjectTask>
 {
-    ICollection<List<ProjectTask>> GetTasksByProject(Project project);
+    Task<List<ProjectTask>> GetTasksByProject(Project project);
 }
