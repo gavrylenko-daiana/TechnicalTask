@@ -28,11 +28,11 @@ public class InitialConsoleManager : ConsoleManager<IUserService, User>, IConsol
     {
         Console.WriteLine("Please, write your username or email.\nUsername or Email: ");
         string userInput = Console.ReadLine()!;
-
-        User getUser = await Service.GetUserByUsernameOrEmail(userInput);
-
+        
         Console.Write("Please, write your password.\nPassword: ");
         string password = Console.ReadLine()!;
+
+        User getUser = await _userConsoleManager.AuthenticateUser(userInput, password);
 
         if (getUser.PasswordHash == Service.GetPasswordHash(password))
         {
@@ -43,7 +43,7 @@ public class InitialConsoleManager : ConsoleManager<IUserService, User>, IConsol
         }
         else
         {
-            throw new Exception("You entered the wrong password!");
+            Console.WriteLine("You entered the wrong password!");
         }
     }
 

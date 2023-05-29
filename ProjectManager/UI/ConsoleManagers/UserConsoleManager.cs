@@ -135,6 +135,13 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
         return emailCode;
     }
 
+    public async Task<User> AuthenticateUser(string userInput, string password)
+    {
+        User getUser = await Service.Authenticate(userInput, password);
+
+        return getUser;
+    }
+
     public async Task DeleteUserAsync()
     {
         Console.Write("Enter your name.\nYour name: ");

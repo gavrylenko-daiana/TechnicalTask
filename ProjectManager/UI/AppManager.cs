@@ -7,11 +7,9 @@ namespace UI;
 public class AppManager
 {
     private readonly InitialConsoleManager _helperManager;
-    private readonly UserConsoleManager _userManager;
 
-    public AppManager(UserConsoleManager userManager, InitialConsoleManager helperConsoleManager)
+    public AppManager(InitialConsoleManager helperConsoleManager)
     {
-        _userManager = userManager;
         _helperManager = helperConsoleManager;
     }
 
