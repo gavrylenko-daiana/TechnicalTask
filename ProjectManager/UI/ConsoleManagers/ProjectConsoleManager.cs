@@ -9,12 +9,13 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
 {
     private readonly TesterConsoleManager _testerManager;
     private readonly ProjectTaskConsoleManager _projectTaskManager;
-    private readonly DeveloperConsoleManager _developerManager;
-    
-    public ProjectConsoleManager(IProjectService service, ProjectTaskConsoleManager projectTaskManager, TesterConsoleManager testerManager) : base(service)
+    private DevelopTasksConsoleManager _developTasksManager;
+
+    public ProjectConsoleManager(IProjectService service, ProjectTaskConsoleManager projectTaskManager, TesterConsoleManager testerManager, DevelopTasksConsoleManager developTasksManager) : base(service)
     {
         _projectTaskManager = projectTaskManager;
         _testerManager = testerManager;
+        _developTasksManager = developTasksManager;
     }
 
     public async Task DisplayAllProjectsAsync()
@@ -46,10 +47,10 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         string projectName = Console.ReadLine()!;
 
         string projectDescript;
-        Console.WriteLine("Optionally add a description to the project.\nEnter '1' - add");
-        char option = Convert.ToChar(Console.ReadLine()!);
+        Console.WriteLine("Optionally add a description to the project.\nPress 'Enter' to add");
+        ConsoleKeyInfo keyInfo = Console.ReadKey();
 
-        if (option == '1')
+        if (keyInfo.Key == ConsoleKey.Enter)
             projectDescript = Console.ReadLine()!;
         else
             projectDescript = "empty";
@@ -59,14 +60,14 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         DateTime enteredDate = new DateTime(int.Parse(date[2]), int.Parse(date[1]), int.Parse(date[0]));
         
         await _testerManager.DisplayAllTester();
-        Console.Write("Write the username of the person who will be the tester for this project.\nTester: ");
+        Console.Write("\nWrite the username of the person who will be the tester for this project.\nTester: ");
         string testerName = Console.ReadLine()!;
 
         var tester = await _testerManager.GetTesterByName(testerName);
         var tasks = await _projectTaskManager.CreateTaskAsync();
         var countAllTasks = tasks.Count;
         
-        IDictionary<User, List<ProjectTask>> claimTasksDeveloper = await _developerManager.AssignTasksToDevelopersAsync();
+        IDictionary<User, List<ProjectTask>> claimTasksDeveloper = await _developTasksManager.AssignTasksToDevelopersAsync();
 
         await CreateAsync(new Project
         {

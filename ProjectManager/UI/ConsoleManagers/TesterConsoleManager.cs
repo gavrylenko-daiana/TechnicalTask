@@ -18,8 +18,8 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
 
         foreach (var tester in testers)
         {
-            Console.WriteLine($"Name: {tester.Username}");
-            Console.WriteLine($"{tester.Email}\n");
+            Console.WriteLine($"\nName: {tester.Username}");
+            Console.WriteLine($"{tester.Email}");
         }
     }
 

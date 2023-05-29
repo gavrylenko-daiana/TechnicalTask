@@ -110,7 +110,7 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
 
     public async Task CreateProjectAsync()
     {
-        Console.Write("Enter your username.\nUsername: ");
+        Console.Write("Enter your username or email.\nUsername or email: ");
         string userInput = Console.ReadLine()!;
         
         User getUser = await Service.GetStakeHolderByUsernameOrEmail(userInput);

@@ -21,6 +21,7 @@ public class DependencyRegistration
         services.AddScoped<TesterConsoleManager>();
         services.AddScoped<StakeHolderConsoleManager>();
         services.AddScoped<InitialConsoleManager>();
+        services.AddScoped<DevelopTasksConsoleManager>();
 
         foreach (Type type in typeof(IConsoleManager<>).Assembly.GetTypes()
                      .Where(t => t.IsClass && !t.IsAbstract && t.GetInterfaces()

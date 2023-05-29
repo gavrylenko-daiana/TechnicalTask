@@ -18,4 +18,11 @@ public class ProjectTaskService : GenericService<ProjectTask>, IProjectTaskServi
 
         return tasks;
     }
+
+    public async Task<ProjectTask> GetTaskAfterCreating()
+    {
+        ProjectTask task = (await GetAll()).LastOrDefault()!;
+
+        return task;
+    }
 }

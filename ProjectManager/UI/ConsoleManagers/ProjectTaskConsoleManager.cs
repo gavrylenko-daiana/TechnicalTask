@@ -14,7 +14,7 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
     public async Task<List<ProjectTask>> CreateTaskAsync()
     {
         Project project = new Project();
-        List<ProjectTask> tasks = new List<ProjectTask>();
+        var tasks = new List<ProjectTask>();
         string exit = String.Empty;
         
         while (exit != "exit")
@@ -22,7 +22,7 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
             Console.WriteLine("Create task");
             Console.Write("Please, write name of task.\nName: ");
             string taskName = Console.ReadLine()!;
-            
+
             Console.Write("Please, write description.\nDescription: ");
             string taskDescription = Console.ReadLine()!;
 
@@ -37,7 +37,7 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
                 : project.DueDates.Date;
 
             var priority = Priority.Low;
-            Console.WriteLine("Enter role for user: \n1) Urgent; 2) High; 3) Medium; 4) Low; 5) Minor;");
+            Console.WriteLine("Select task priority: \n1) Urgent; 2) High; 3) Medium; 4) Low; 5) Minor;");
             int choice = int.Parse(Console.ReadLine()!);
             
             try
@@ -56,18 +56,29 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
                 Console.WriteLine("Such a type of priority does not exist!");
             }
 
-            await CreateAsync(new ProjectTask
+            var item = new ProjectTask
             {
                 Name = taskName,
                 Description = taskDescription,
                 DueDates = term,
                 Priority = priority,
-            });
+            };
+
+            await CreateAsync(item);
+            
+            tasks.Add(item);
 
             Console.WriteLine("Are you want to add next task in this project?\nWrite 'exit' - No, Press 'Enter' - yes");
             exit = Console.ReadLine()!;
         }
 
+        return tasks;
+    }
+
+    public async Task<ProjectTask> GetTaskAfterCreating()
+    {
+        ProjectTask tasks = await Service.GetTaskAfterCreating();
+        
         return tasks;
     }
 
