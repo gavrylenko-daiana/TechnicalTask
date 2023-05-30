@@ -13,6 +13,7 @@ public class Project : BaseEntity
     public DateTime DueDates { get; set; }
     public User StakeHolder { get; set; }
     public User Tester { get; set; }
+    public List<ProjectTask> Tasks { get; set; }
     public IDictionary<User, List<ProjectTask>> ClaimTaskDeveloper = new Dictionary<User, List<ProjectTask>>(); // для разработчика только таски 
     public Progress Progress { get; set; }
 }

@@ -25,7 +25,7 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
         {
             { "1", DisplayDeveloperAsync },
             { "2", UpdateDeveloperAsync },
-            { "3", AssignTasksToDevelopersAsync }
+            { "3", AssignTasksToDeveloperAsync }
         };
 
         while (true)
@@ -45,16 +45,15 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
         }
     }
 
-    public async Task AssignTasksToDevelopersAsync(User developer)
+    public async Task AssignTasksToDeveloperAsync(User developer)
     {
         var claimsTaskEmployee = new Dictionary<User, List<ProjectTask>>();
         await _projectManager.DisplayAllProjectsAsync();
 
-        Console.WriteLine("Write the name of the project from which you want to take tasks.");
+        Console.WriteLine("\nWrite the name of the project from which you want to take tasks.");
         var projectName = Console.ReadLine()!;
 
         var project = await _projectManager.GetProjectByName(projectName);
-        var developers = await Service.GetAllDeveloper();
         var tasks = await _projectTaskManager.GetTasksByProject(project);
 
         await _projectTaskManager.DisplayAllTaskByProject(tasks);
@@ -94,7 +93,7 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
 
     public async Task DisplayDeveloperAsync(User developer)
     {
-        Console.WriteLine($"Username: {developer.Username}");
+        Console.WriteLine($"\nUsername: {developer.Username}");
         Console.WriteLine($"Email: {developer.Email}");
     }
 

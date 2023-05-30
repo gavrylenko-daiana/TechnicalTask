@@ -34,12 +34,18 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
 
             foreach (var kvp in project.ClaimTaskDeveloper)
             {
-                Console.WriteLine($"Developer: {kvp.Key}");
+                Console.WriteLine($"\nDeveloper: {kvp.Key}");
                 Console.WriteLine("Tasks:");
                 foreach (var task in kvp.Value)
                 {
                     Console.WriteLine($"\t{task}");
                 }
+            }
+
+            Console.WriteLine($"\nAll tasks:");
+            foreach (var task in project.Tasks)
+            {
+                Console.WriteLine($"Task: {task}");
             }
 
             Console.WriteLine($"DueDates: {project.DueDates}");
@@ -63,14 +69,14 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         Console.Write("Please, write name of project.\nName: ");
         string projectName = Console.ReadLine()!;
 
-        string projectDescript;
+        string projectDescription;
         Console.WriteLine("Optionally add a description to the project.\nPress 'Enter' to add");
         ConsoleKeyInfo keyInfo = Console.ReadKey();
 
         if (keyInfo.Key == ConsoleKey.Enter)
-            projectDescript = Console.ReadLine()!;
+            projectDescription = Console.ReadLine()!;
         else
-            projectDescript = "empty";
+            projectDescription = "empty";
 
         Console.Write("Enter a due date for the task.\nDue date (dd.MM.yyyy): ");
         string[] date = Console.ReadLine()!.Split('.');
@@ -87,13 +93,30 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         await CreateAsync(new Project
         {
             Name = projectName,
-            Description = projectDescript,
+            Description = projectDescription,
             Progress = Progress.Planned,
             StakeHolder = getUser,
             DueDates = enteredDate,
             Tester = tester,
-            CountAllTasks = countAllTasks
+            CountAllTasks = countAllTasks,
+            Tasks = tasks
         });
+    }
+
+    public async Task DeleteProjectAsync(string projectName)
+    {
+        var project = await Service.GetProjectByName(projectName);
+        await DeleteAsync(project.Id);
+    }
+
+    public async Task DeleteProjectsWithSteakHolderAsync(User stakeHolder)
+    {
+        var projects = await Service.GetProjectsByStakeHolder(stakeHolder);
+        
+        foreach (var project in projects)
+        {
+            await DeleteAsync(project.Id);
+        }
     }
 
     public async Task<Project> GetProjectByName(string projectName)
