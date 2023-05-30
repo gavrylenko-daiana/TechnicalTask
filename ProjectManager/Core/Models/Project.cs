@@ -14,6 +14,6 @@ public class Project : BaseEntity
     public User StakeHolder { get; set; }
     public User Tester { get; set; }
     public List<ProjectTask> Tasks { get; set; }
-    public IDictionary<User, List<ProjectTask>> ClaimTaskDeveloper = new Dictionary<User, List<ProjectTask>>(); // для разработчика только таски 
+    public IDictionary<User, List<ProjectTask>> ClaimTaskDeveloper = new Dictionary<User, List<ProjectTask>>();
     public Progress Progress { get; set; }
 }

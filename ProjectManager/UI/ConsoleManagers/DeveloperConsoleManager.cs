@@ -25,7 +25,7 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
         {
             { "1", DisplayDeveloperAsync },
             { "2", UpdateDeveloperAsync },
-            { "3", AssignTasksToDeveloperAsync }
+            // { "3", AssignTasksToDeveloperAsync }
         };
 
         while (true)
@@ -45,51 +45,53 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
         }
     }
 
-    public async Task AssignTasksToDeveloperAsync(User developer)
-    {
-        var claimsTaskEmployee = new Dictionary<User, List<ProjectTask>>();
-        await _projectManager.DisplayAllProjectsAsync();
-
-        Console.WriteLine("\nWrite the name of the project from which you want to take tasks.");
-        var projectName = Console.ReadLine()!;
-
-        var project = await _projectManager.GetProjectByName(projectName);
-        var tasks = await _projectTaskManager.GetTasksByProject(project);
-
-        await _projectTaskManager.DisplayAllTaskByProject(tasks);
-
-        if (tasks.Count != 0)
-        {
-            foreach (var task in tasks)
-            {
-                Console.WriteLine(
-                    $"Can {developer.Username} take task {task.Name}?\nPlease, write '1' - yes or '2' - no");
-                var choice = int.Parse(Console.ReadLine()!);
-
-                if (choice == 1)
-                {
-                    if (!claimsTaskEmployee.TryGetValue(developer, out var developerTasks))
-                    {
-                        developerTasks = new List<ProjectTask>();
-                        claimsTaskEmployee[developer] = developerTasks;
-                    }
-
-                    developerTasks.Add(task);
-                }
-            }
-
-            foreach (var projectTask in claimsTaskEmployee[developer])
-            {
-                tasks.Remove(projectTask);
-            }
-        }
-        else
-        {
-            Console.WriteLine($"Task list is empty!");
-        }
-
-        project.ClaimTaskDeveloper = claimsTaskEmployee;
-    }
+    // public async Task AssignTasksToDeveloperAsync(User developer)
+    // {
+    //     await _projectManager.DisplayAllProjectsAsync();
+    //
+    //     Console.WriteLine("Write the name of the project from which you want to take tasks.");
+    //     var projectName = Console.ReadLine()!;
+    //
+    //     var project = await _projectManager.GetProjectByName(projectName);
+    //     var claimsTaskDeveloper = project.ClaimTaskDeveloper;
+    //     var tasks = await _projectTaskManager.GetTasksByProject(project);
+    //
+    //     await _projectTaskManager.DisplayAllTaskByProject(tasks);
+    //
+    //     if (tasks.Count != 0)
+    //     {
+    //         foreach (var task in tasks)
+    //         {
+    //             Console.WriteLine(
+    //                 $"Can {developer.Username} take task {task.Name}?\nPlease, write '1' - yes or '2' - no");
+    //             var choice = int.Parse(Console.ReadLine()!);
+    //
+    //             if (choice == 1)
+    //             {
+    //                 if (!claimsTaskDeveloper.TryGetValue(developer, out var developerTasks))
+    //                 {
+    //                     developerTasks = new List<ProjectTask>();
+    //                     claimsTaskDeveloper[developer] = developerTasks;
+    //                 }
+    //
+    //                 developerTasks.Add(task);
+    //             }
+    //         }
+    //
+    //         foreach (var projectTask in claimsTaskDeveloper[developer])
+    //         {
+    //             projectTask.Progress = Progress.InProgress;
+    //         }
+    //     }
+    //     else
+    //     {
+    //         Console.WriteLine($"Task list is empty!");
+    //     }
+    //
+    //     project.ClaimTaskDeveloper = claimsTaskDeveloper;
+    //     
+    //     await UpdateAsync(project.Id, project)
+    // }
 
     public async Task DisplayDeveloperAsync(User developer)
     {

@@ -21,10 +21,11 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
         {
             { "1", UpdateStakeHolderAsync },
             { "2", CreateProjectAsync },
-            { "3", DisplayInfoStakeHolderAndProjectAsync },
-            // { "4", UpdateProjectAsync },
-            { "5", DeleteOneProjectAsync },
-            { "6", DeleteStakeHolderAsync },
+            { "3", CreateTaskToProjectAsync },
+            { "4", DisplayInfoStakeHolderAndProjectAsync },
+            // { "5", UpdateProjectAsync },
+            { "6", DeleteOneProjectAsync },
+            { "7", DeleteStakeHolderAsync },
         };
     
         while (true)
@@ -32,16 +33,22 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
             Console.WriteLine("\nUser operations:");
             Console.WriteLine("1. Update your information");
             Console.WriteLine("2. Create new project");
-            Console.WriteLine("3. Display your projects");
-            Console.WriteLine("4. Update your project");
-            Console.WriteLine("5. Delete your project");
-            Console.WriteLine("6. Delete your account");
-            Console.WriteLine("7. Exit");
+            Console.WriteLine("3. Create tasks for project");
+            Console.WriteLine("4. Display info about you and your projects");
+            Console.WriteLine("5. Update your project");
+            Console.WriteLine("6. Delete your project");
+            Console.WriteLine("7. Delete your account");
+            Console.WriteLine("8. Exit");
 
             Console.Write("Enter the operation number: ");
             string input = Console.ReadLine()!;
 
-            if (input == "6" || input == "7") break;
+            if (input == "8") break;
+            if (input == "7")
+            {
+                await actions[input](user);
+                break;
+            }
             if (actions.ContainsKey(input)) await actions[input](user);
             else Console.WriteLine("Invalid operation number.");
         }
@@ -116,5 +123,10 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
     public async Task CreateProjectAsync(User stakeHolder)
     {
         await _projectManager.CreateNewProjectAsync(stakeHolder);
+    }
+
+    public async Task CreateTaskToProjectAsync(User stakeHolder)
+    {
+        await _projectManager.ChooseProjectToAddTasks(stakeHolder);
     }
 }

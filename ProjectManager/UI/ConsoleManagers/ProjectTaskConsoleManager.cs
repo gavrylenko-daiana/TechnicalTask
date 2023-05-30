@@ -11,9 +11,8 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
     {
     }
 
-    public async Task<List<ProjectTask>> CreateTaskAsync()
+    public async Task<List<ProjectTask>> CreateTaskAsync(Project project)
     {
-        Project project = new Project();
         var tasks = new List<ProjectTask>();
         string exit = String.Empty;
         
@@ -62,6 +61,7 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
                 Description = taskDescription,
                 DueDates = term,
                 Priority = priority,
+                Tester = project.Tester
             };
 
             await CreateAsync(item);
@@ -75,11 +75,19 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
         return tasks;
     }
 
-    public async Task<ProjectTask> GetTaskAfterCreating()
+    // public async Task<ProjectTask> GetTaskAfterCreating()
+    // {
+    //     ProjectTask tasks = await Service.GetTaskAfterCreating();
+    //     
+    //     return tasks;
+    // }
+
+    public async Task DeleteTasksWithProject(Project project)
     {
-        ProjectTask tasks = await Service.GetTaskAfterCreating();
-        
-        return tasks;
+        foreach (var task in project.Tasks)
+        {
+            await DeleteAsync(task.Id);
+        }
     }
 
     public async Task<List<ProjectTask>> GetTasksByProject(Project project)
@@ -87,6 +95,22 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
         List<ProjectTask> tasks = await Service.GetTasksByProject(project);
 
         return tasks;
+    }
+
+    public async Task DisplayTaskAsync(ProjectTask task)
+    {
+        Console.WriteLine($"Name: {task.Name}");
+            
+        if (!string.IsNullOrWhiteSpace(task.Description))
+            Console.WriteLine($"Description: {task.Description}");
+
+        if (task.Developer != null)
+            Console.WriteLine($"Developer performing task: {task.Developer.Username}");
+
+        Console.WriteLine($"Tester: {task.Tester.Username}");
+        Console.WriteLine($"Priority: {task.Priority}");
+        Console.WriteLine($"DueDates: {task.DueDates}");
+        Console.WriteLine($"Status: {task.Progress}\n");
     }
 
     public async Task DisplayAllTaskByProject(List<ProjectTask> tasks)
@@ -99,9 +123,9 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
                 Console.WriteLine($"Description: {task.Description}");
 
             if (task.Developer != null)
-                Console.WriteLine($"Developer performing task: {task.Developer}");
+                Console.WriteLine($"Developer performing task: {task.Developer.Username}");
 
-            Console.WriteLine($"Tester: {task.Tester}");
+            Console.WriteLine($"Tester: {task.Tester.Username}");
             Console.WriteLine($"Priority: {task.Priority}");
             Console.WriteLine($"DueDates: {task.DueDates}");
             Console.WriteLine($"Status: {task.Progress}\n");

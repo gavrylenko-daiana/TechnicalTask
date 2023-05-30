@@ -31,25 +31,30 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
             Console.WriteLine($"Tester: {project.Tester.Username} with email: {project.Tester.Email}");
             Console.WriteLine($"Number of all tasks: {project.CountAllTasks}");
             Console.WriteLine($"Number of done tasks: {project.CountDoneTasks}");
+            Console.WriteLine($"DueDates: {project.DueDates}");
+            Console.WriteLine($"Status: {project.Progress}");
 
-            foreach (var kvp in project.ClaimTaskDeveloper)
+            if (project.ClaimTaskDeveloper != null && project.ClaimTaskDeveloper.Count > 0)
             {
-                Console.WriteLine($"\nDeveloper: {kvp.Key}");
-                Console.WriteLine("Tasks:");
-                foreach (var task in kvp.Value)
+                foreach (var kvp in project.ClaimTaskDeveloper)
                 {
-                    Console.WriteLine($"\t{task}");
+                    Console.WriteLine($"\nDeveloper: {kvp.Key.Username}");
+                    Console.WriteLine("Tasks:");
+                    foreach (var task in kvp.Value)
+                    {
+                        Console.WriteLine($"\t{task.Name}");
+                    }
                 }
             }
 
-            Console.WriteLine($"\nAll tasks:");
-            foreach (var task in project.Tasks)
+            if (project.Tasks != null && project.Tasks.Count > 0)
             {
-                Console.WriteLine($"Task: {task}");
+                Console.WriteLine($"\nAll tasks:");
+                foreach (var task in project.Tasks)
+                {
+                    await _projectTaskManager.DisplayTaskAsync(task);
+                }
             }
-
-            Console.WriteLine($"DueDates: {project.DueDates}");
-            Console.WriteLine($"Status: {project.Progress}");
         }
     }
 
@@ -87,8 +92,6 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         string testerName = Console.ReadLine()!;
 
         var tester = await _testerManager.GetTesterByName(testerName);
-        var tasks = await _projectTaskManager.CreateTaskAsync();
-        var countAllTasks = tasks.Count;
 
         await CreateAsync(new Project
         {
@@ -97,10 +100,28 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
             Progress = Progress.Planned,
             StakeHolder = getUser,
             DueDates = enteredDate,
-            Tester = tester,
-            CountAllTasks = countAllTasks,
-            Tasks = tasks
+            Tester = tester
         });
+    }
+
+    public async Task ChooseProjectToAddTasks(User stakeHolder)
+    {
+        await DisplayProjectAsync(stakeHolder);
+        
+        Console.Write($"\nEnter name of project you want to add tasks.\nName: ");
+        var projectName = Console.ReadLine()!;
+        if (projectName == null) Console.WriteLine($"This name does not exist");
+
+        var project = await Service.GetProjectByName(projectName);
+        await CreateTaskForProject(project);
+    }
+
+    private async Task CreateTaskForProject(Project project)
+    {
+        project.Tasks = await _projectTaskManager.CreateTaskAsync(project);
+        project.CountAllTasks = project.Tasks.Count;
+
+        await UpdateAsync(project.Id, project);
     }
 
     public async Task DeleteProjectAsync(string projectName)
@@ -115,6 +136,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         
         foreach (var project in projects)
         {
+            await _projectTaskManager.DeleteTasksWithProject(project);
             await DeleteAsync(project.Id);
         }
     }

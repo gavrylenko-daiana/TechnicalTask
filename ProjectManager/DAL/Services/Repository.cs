@@ -19,7 +19,7 @@ namespace DAL.Services
             EnsureFileExists();
         }
 
-        public async Task<Result<List<T>>> GetAllAsync(int pageNumber = 1, int pageSize = 10)
+        public async Task<Result<List<T>>> GetAllAsync(int pageNumber = 1, int pageSize = 20)
         {
             try
             {
