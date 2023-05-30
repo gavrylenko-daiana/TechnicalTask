@@ -7,7 +7,7 @@ namespace UI.Interfaces
 {
     public interface IConsoleManager<TEntity> where TEntity : BaseEntity
     {
-        Task PerformOperationsAsync();
+        Task PerformOperationsAsync(User user);
 
         Task<IEnumerable<TEntity>> GetAllAsync();
 

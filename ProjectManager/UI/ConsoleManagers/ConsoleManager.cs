@@ -17,7 +17,7 @@ public abstract class ConsoleManager<TService, TEntity>
         Service = service ?? throw new ArgumentNullException(nameof(service));
     }
 
-    public abstract Task PerformOperationsAsync();
+    public abstract Task PerformOperationsAsync(User user);
 
     public virtual async Task<IEnumerable<TEntity>> GetAllAsync()
     {

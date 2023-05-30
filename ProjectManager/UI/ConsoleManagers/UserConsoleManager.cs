@@ -14,7 +14,7 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
     {
     }
 
-    public override async Task PerformOperationsAsync()
+    public override async Task PerformOperationsAsync(User user)
     {
         Dictionary<string, Func<Task>> actions = new Dictionary<string, Func<Task>>
         {

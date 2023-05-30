@@ -11,6 +11,11 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
     public TesterConsoleManager(ITesterService service) : base(service)
     {
     }
+    
+    public override Task PerformOperationsAsync(User user)
+    {
+        throw new NotImplementedException();
+    }
 
     public async Task DisplayAllTester()
     {
@@ -28,10 +33,5 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
         var tester = await Service.GetTesterByName(name);
 
         return tester;
-    }
-    
-    public override Task PerformOperationsAsync()
-    {
-        throw new NotImplementedException();
     }
 }

@@ -108,7 +108,7 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
         }
     }
 
-    public override Task PerformOperationsAsync()
+    public override Task PerformOperationsAsync(User user)
     {
         throw new NotImplementedException();
     }

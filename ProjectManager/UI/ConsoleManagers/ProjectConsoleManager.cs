@@ -9,13 +9,39 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
 {
     private readonly TesterConsoleManager _testerManager;
     private readonly ProjectTaskConsoleManager _projectTaskManager;
-    private readonly DevelopTasksConsoleManager _developTasksManager;
 
-    public ProjectConsoleManager(IProjectService service, ProjectTaskConsoleManager projectTaskManager, TesterConsoleManager testerManager, DevelopTasksConsoleManager developTasksManager) : base(service)
+    public ProjectConsoleManager(IProjectService service, ProjectTaskConsoleManager projectTaskManager, TesterConsoleManager testerManager) : base(service)
     {
         _projectTaskManager = projectTaskManager;
         _testerManager = testerManager;
-        _developTasksManager = developTasksManager;
+    }
+
+    public async Task DisplayProjectAsync(User user)
+    {
+        Project project = await Service.GetProjectByStakeHolder(user);
+        
+        Console.WriteLine($"Name: {project.Name}");
+
+        if (!string.IsNullOrWhiteSpace(project.Description))
+            Console.WriteLine($"Description: {project.Description}");
+
+        Console.WriteLine($"Stake Holder: {project.StakeHolder}");
+        Console.WriteLine($"Tester: {project.Tester}");
+        Console.WriteLine($"Number of all tasks: {project.CountAllTasks}");
+        Console.WriteLine($"Number of done tasks: {project.CountDoneTasks}");
+
+        foreach (var kvp in project.ClaimTaskDeveloper)
+        {
+            Console.WriteLine($"Developer: {kvp.Key}");
+            Console.WriteLine("Tasks:");
+            foreach (var task in kvp.Value)
+            {
+                Console.WriteLine($"\t{task}");
+            }
+        }
+
+        Console.WriteLine($"DueDates: {project.DueDates}");
+        Console.WriteLine($"Status: {project.Progress}");
     }
 
     public async Task DisplayAllProjectsAsync()
@@ -24,19 +50,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
 
         foreach (var project in projects)
         {
-            Console.WriteLine($"Name: {project.Name}");
-            
-            if (!string.IsNullOrWhiteSpace(project.Description))
-                Console.WriteLine($"Description: {project.Description}");
-
-            //tasks and developers-----
-            
-            var developers = await Service.GetDevelopersByProject(project);
-            
-            //---------
-            
-            Console.WriteLine($"DueDates: {project.DueDates}");
-            Console.WriteLine($"Status: {project.Progress}");
+            await DisplayProjectAsync(project.StakeHolder);
         }
     }
     
@@ -66,8 +80,6 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         var tester = await _testerManager.GetTesterByName(testerName);
         var tasks = await _projectTaskManager.CreateTaskAsync();
         var countAllTasks = tasks.Count;
-        
-        IDictionary<User, List<ProjectTask>> claimTasksDeveloper = await _developTasksManager.AssignTasksToDevelopersAsync();
 
         await CreateAsync(new Project
         {
@@ -77,8 +89,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
             StakeHolder = getUser,
             DueDates = enteredDate,
             Tester = tester,
-            CountAllTasks = countAllTasks,
-            ClaimTaskDeveloper = claimTasksDeveloper
+            CountAllTasks = countAllTasks
         });
     }
 
@@ -89,7 +100,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         return project;
     }
     
-    public override Task PerformOperationsAsync()
+    public override Task PerformOperationsAsync(User user)
     {
         throw new NotImplementedException();
     }

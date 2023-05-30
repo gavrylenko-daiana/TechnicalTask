@@ -7,19 +7,21 @@ namespace UI.ConsoleManagers;
 
 public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, IConsoleManager<User>
 {
-    private readonly DevelopTasksConsoleManager _developTasksManager;
     private readonly UserConsoleManager _userConsoleManager;
+    private readonly ProjectConsoleManager _projectManager;
+    private readonly ProjectTaskConsoleManager _projectTaskManager;
 
     public DeveloperConsoleManager(IDeveloperService service, UserConsoleManager userConsoleManager,
-        DevelopTasksConsoleManager developTasksManager) : base(service)
+        ProjectConsoleManager projectManager, ProjectTaskConsoleManager projectTaskManager) : base(service)
     {
         _userConsoleManager = userConsoleManager;
-        _developTasksManager = developTasksManager;
+        _projectManager = projectManager;
+        _projectTaskManager = projectTaskManager;
     }
 
-    public override async Task PerformOperationsAsync()
+    public override async Task PerformOperationsAsync(User user)
     {
-        Dictionary<string, Func<Task>> actions = new Dictionary<string, Func<Task>>
+        Dictionary<string, Func<User, Task>> actions = new Dictionary<string, Func<User, Task>>
         {
             { "1", DisplayDeveloperAsync },
             { "2", UpdateDeveloperAsync },
@@ -38,30 +40,66 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
             string input = Console.ReadLine()!;
 
             if (input == "4") break;
-            if (actions.ContainsKey(input)) await actions[input]();
+            if (actions.ContainsKey(input)) await actions[input](user);
             else Console.WriteLine("Invalid operation number.");
         }
     }
 
-    public async Task DisplayDeveloperAsync()
+    public async Task AssignTasksToDevelopersAsync(User developer)
     {
-        await _developTasksManager.DisplayDeveloperAsync();
+        var claimsTaskEmployee = new Dictionary<User, List<ProjectTask>>();
+        await _projectManager.DisplayAllProjectsAsync();
+
+        Console.WriteLine("Write the name of the project from which you want to take tasks.");
+        var projectName = Console.ReadLine()!;
+
+        var project = await _projectManager.GetProjectByName(projectName);
+        var developers = await Service.GetAllDeveloper();
+        var tasks = await _projectTaskManager.GetTasksByProject(project);
+
+        await _projectTaskManager.DisplayAllTaskByProject(tasks);
+
+        if (tasks.Count != 0)
+        {
+            foreach (var task in tasks)
+            {
+                Console.WriteLine(
+                    $"Can {developer.Username} take task {task.Name}?\nPlease, write '1' - yes or '2' - no");
+                var choice = int.Parse(Console.ReadLine()!);
+
+                if (choice == 1)
+                {
+                    if (!claimsTaskEmployee.TryGetValue(developer, out var developerTasks))
+                    {
+                        developerTasks = new List<ProjectTask>();
+                        claimsTaskEmployee[developer] = developerTasks;
+                    }
+
+                    developerTasks.Add(task);
+                }
+            }
+
+            foreach (var projectTask in claimsTaskEmployee[developer])
+            {
+                tasks.Remove(projectTask);
+            }
+        }
+        else
+        {
+            Console.WriteLine($"Task list is empty!");
+        }
+
+        project.ClaimTaskDeveloper = claimsTaskEmployee;
     }
 
-    public async Task<Dictionary<User, List<ProjectTask>>> AssignTasksToDevelopersAsync()
+    public async Task DisplayDeveloperAsync(User developer)
     {
-        var claimsTaskDeveloper = await _developTasksManager.AssignTasksToDevelopersAsync();
-
-        return claimsTaskDeveloper;
+        Console.WriteLine($"Username: {developer.Username}");
+        Console.WriteLine($"Email: {developer.Email}");
     }
-    
-    public async Task UpdateDeveloperAsync()
+
+    public async Task UpdateDeveloperAsync(User developer)
     {
-        Console.Write("Enter your username.\nYour username: ");
-        string userName = Console.ReadLine()!;
-
-        User getUser = await Service.GetDeveloperByUsernameOrEmail(userName);
-
         while (true)
         {
             Console.WriteLine("\nSelect which information you want to change: ");
@@ -77,15 +115,15 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
             {
                 case "1":
                     Console.Write("Please, edit your username.\nYour name: ");
-                    getUser.Username = Console.ReadLine()!;
+                    developer.Username = Console.ReadLine()!;
                     Console.WriteLine("Username was successfully edited");
                     break;
                 case "2":
-                    await _userConsoleManager.UpdateUserPassword(getUser);
+                    await _userConsoleManager.UpdateUserPassword(developer);
                     break;
                 case "3":
                     Console.Write("Please, edit your email.\nYour email: ");
-                    getUser.Email = Console.ReadLine()!;
+                    developer.Email = Console.ReadLine()!;
                     Console.WriteLine("Your email was successfully edited");
                     break;
                 case "4":

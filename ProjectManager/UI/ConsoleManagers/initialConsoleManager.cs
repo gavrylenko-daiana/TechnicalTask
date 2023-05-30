@@ -36,10 +36,10 @@ public class InitialConsoleManager : ConsoleManager<IUserService, User>, IConsol
 
         if (getUser.PasswordHash == Service.GetPasswordHash(password))
         {
-            if (getUser.Role == UserRole.User) await _userConsoleManager.PerformOperationsAsync();
-            if (getUser.Role == UserRole.StakeHolder) await _stakeHolderManager.PerformOperationsAsync();
-            if (getUser.Role == UserRole.Developer) await _developerConsoleManager.PerformOperationsAsync();
-            if (getUser.Role == UserRole.Tester) await _testerConsoleManager.PerformOperationsAsync();
+            if (getUser.Role == UserRole.User) await _userConsoleManager.PerformOperationsAsync(getUser);
+            if (getUser.Role == UserRole.StakeHolder) await _stakeHolderManager.PerformOperationsAsync(getUser);
+            if (getUser.Role == UserRole.Developer) await _developerConsoleManager.PerformOperationsAsync(getUser);
+            if (getUser.Role == UserRole.Tester) await _testerConsoleManager.PerformOperationsAsync(getUser);
         }
         else
         {
@@ -96,7 +96,7 @@ public class InitialConsoleManager : ConsoleManager<IUserService, User>, IConsol
         return role;
     }
 
-    public override async Task PerformOperationsAsync()
+    public override async Task PerformOperationsAsync(User user)
     {
         throw new NotImplementedException();
     }

@@ -15,13 +15,13 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
         _projectManager = projectManager;
     }
     
-    public override async Task PerformOperationsAsync()
+    public override async Task PerformOperationsAsync(User user)
     {
-        Dictionary<string, Func<Task>> actions = new Dictionary<string, Func<Task>>
+        Dictionary<string, Func<User, Task>> actions = new Dictionary<string, Func<User, Task>>
         {
             { "1", UpdateStakeHolderAsync },
             { "2", CreateProjectAsync },
-            { "3", DisplayInfoAsync },
+            { "3", DisplayInfoStakeHolderAndProjectAsync },
             // { "4", UpdateProjectAsync },
             // { "5", DeleteProjectAsync },
         };
@@ -40,18 +40,14 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
             string input = Console.ReadLine()!;
 
             if (input == "6") break;
-            if (actions.ContainsKey(input)) await actions[input]();
+            if (actions.ContainsKey(input)) await actions[input](user);
             else Console.WriteLine("Invalid operation number.");
         }
     }
 
-    public async Task UpdateStakeHolderAsync()
+    public async Task UpdateStakeHolderAsync(User stakeHolder)
     {
-        Console.Write("Enter your username or email.\nYour username or email: ");
-        string userInput = Console.ReadLine()!;
-
-        User getUser = await Service.GetStakeHolderByUsernameOrEmail(userInput);
-        await DisplayInfoStakeHolderAndProjectAsync(getUser);
+        await DisplayInfoStakeHolderAndProjectAsync(stakeHolder);
 
         while (true)
         {
@@ -68,15 +64,15 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
             {
                 case "1":
                     Console.Write("Please, edit your username.\nYour name: ");
-                    getUser.Username = Console.ReadLine()!;
+                    stakeHolder.Username = Console.ReadLine()!;
                     Console.WriteLine("Username was successfully edited");
                     break;
                 case "2":
-                    await _userConsoleManager.UpdateUserPassword(getUser);
+                    await _userConsoleManager.UpdateUserPassword(stakeHolder);
                     break;
                 case "3":
                     Console.Write("Please, edit your email.\nYour email: ");
-                    getUser.Email = Console.ReadLine()!;
+                    stakeHolder.Email = Console.ReadLine()!;
                     Console.WriteLine("Your email was successfully edited");
                     break;
                 case "4":
@@ -86,34 +82,21 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
                     break;
             }
             
-            await UpdateAsync(getUser.Id, getUser);
+            await UpdateAsync(stakeHolder.Id, stakeHolder);
         }
     }
 
-    private async Task DisplayInfoAsync()
+    private async Task DisplayInfoStakeHolderAndProjectAsync(User stakeHolder)
     {
-        Console.Write("Enter your username or email.\nYour username or email: ");
-        string userInput = Console.ReadLine()!;
-        
-        User getUser = await Service.GetStakeHolderByUsernameOrEmail(userInput);
-        await DisplayInfoStakeHolderAndProjectAsync(getUser);
-    }
-
-    private async Task DisplayInfoStakeHolderAndProjectAsync(User user)
-    {
-        Console.Write($"Your username: {user.Username}\n" +
-                          $"Your email: {user.Email}\n" +
+        Console.Write($"Your username: {stakeHolder.Username}\n" +
+                          $"Your email: {stakeHolder.Email}\n" +
                           $"Your project(s):\n");
 
-        await _projectManager.DisplayAllProjectsAsync();
+        await _projectManager.DisplayProjectAsync(stakeHolder);
     }
 
-    public async Task CreateProjectAsync()
+    public async Task CreateProjectAsync(User stakeHolder)
     {
-        Console.Write("Enter your username or email.\nUsername or email: ");
-        string userInput = Console.ReadLine()!;
-        
-        User getUser = await Service.GetStakeHolderByUsernameOrEmail(userInput);
-        await _projectManager.CreateNewProjectAsync(getUser);
+        await _projectManager.CreateNewProjectAsync(stakeHolder);
     }
 }
