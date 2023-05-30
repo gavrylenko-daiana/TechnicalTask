@@ -30,11 +30,10 @@ public class ProjectService : GenericService<Project>, IProjectService
         return project;
     }
 
-    public async Task<Project> GetProjectByStakeHolder(User stakeHolder)
+    public async Task<IEnumerable<Project>> GetProjectsByStakeHolder(User stakeHolder)
     {
-        Project project = await GetByPredicate(p => p.StakeHolder == stakeHolder);
-        if (project == null) throw new ArgumentNullException(nameof(project));
+        IEnumerable<Project> projects = (await GetAll()).Where(p => p.StakeHolder.Id == stakeHolder.Id);
 
-        return project;
+        return projects;
     }
 }

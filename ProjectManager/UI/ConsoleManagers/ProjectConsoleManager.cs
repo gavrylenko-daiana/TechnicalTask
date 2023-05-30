@@ -18,30 +18,33 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
 
     public async Task DisplayProjectAsync(User user)
     {
-        Project project = await Service.GetProjectByStakeHolder(user);
-        
-        Console.WriteLine($"Name: {project.Name}");
+        IEnumerable<Project> projects = await Service.GetProjectsByStakeHolder(user);
 
-        if (!string.IsNullOrWhiteSpace(project.Description))
-            Console.WriteLine($"Description: {project.Description}");
-
-        Console.WriteLine($"Stake Holder: {project.StakeHolder}");
-        Console.WriteLine($"Tester: {project.Tester}");
-        Console.WriteLine($"Number of all tasks: {project.CountAllTasks}");
-        Console.WriteLine($"Number of done tasks: {project.CountDoneTasks}");
-
-        foreach (var kvp in project.ClaimTaskDeveloper)
+        foreach (var project in projects)
         {
-            Console.WriteLine($"Developer: {kvp.Key}");
-            Console.WriteLine("Tasks:");
-            foreach (var task in kvp.Value)
-            {
-                Console.WriteLine($"\t{task}");
-            }
-        }
+            Console.WriteLine($"\nName: {project.Name}");
 
-        Console.WriteLine($"DueDates: {project.DueDates}");
-        Console.WriteLine($"Status: {project.Progress}");
+            if (!string.IsNullOrWhiteSpace(project.Description))
+                Console.WriteLine($"Description: {project.Description}");
+
+            Console.WriteLine($"Stake Holder: {project.StakeHolder.Username} with email: {project.StakeHolder.Email}");
+            Console.WriteLine($"Tester: {project.Tester.Username} with email: {project.Tester.Email}");
+            Console.WriteLine($"Number of all tasks: {project.CountAllTasks}");
+            Console.WriteLine($"Number of done tasks: {project.CountDoneTasks}");
+
+            foreach (var kvp in project.ClaimTaskDeveloper)
+            {
+                Console.WriteLine($"Developer: {kvp.Key}");
+                Console.WriteLine("Tasks:");
+                foreach (var task in kvp.Value)
+                {
+                    Console.WriteLine($"\t{task}");
+                }
+            }
+
+            Console.WriteLine($"DueDates: {project.DueDates}");
+            Console.WriteLine($"Status: {project.Progress}");
+        }
     }
 
     public async Task DisplayAllProjectsAsync()
