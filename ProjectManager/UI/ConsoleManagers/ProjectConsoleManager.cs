@@ -10,7 +10,8 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
     private readonly TesterConsoleManager _testerManager;
     private readonly ProjectTaskConsoleManager _projectTaskManager;
 
-    public ProjectConsoleManager(IProjectService service, ProjectTaskConsoleManager projectTaskManager, TesterConsoleManager testerManager) : base(service)
+    public ProjectConsoleManager(IProjectService service, ProjectTaskConsoleManager projectTaskManager,
+        TesterConsoleManager testerManager) : base(service)
     {
         _projectTaskManager = projectTaskManager;
         _testerManager = testerManager;
@@ -34,22 +35,9 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
             Console.WriteLine($"DueDates: {project.DueDates}");
             Console.WriteLine($"Status: {project.Progress}");
 
-            if (project.ClaimTaskDeveloper != null && project.ClaimTaskDeveloper.Count > 0)
-            {
-                foreach (var kvp in project.ClaimTaskDeveloper)
-                {
-                    Console.WriteLine($"\nDeveloper: {kvp.Key.Username}");
-                    Console.WriteLine("Tasks:");
-                    foreach (var task in kvp.Value)
-                    {
-                        Console.WriteLine($"\t{task.Name}");
-                    }
-                }
-            }
-
             if (project.Tasks != null && project.Tasks.Count > 0)
             {
-                Console.WriteLine($"\nAll tasks:");
+                Console.WriteLine($"\nTask(s):");
                 foreach (var task in project.Tasks)
                 {
                     await _projectTaskManager.DisplayTaskAsync(task);
@@ -67,7 +55,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
             await DisplayProjectAsync(project.StakeHolder);
         }
     }
-    
+
     public async Task CreateNewProjectAsync(User getUser)
     {
         Console.WriteLine("Create project");
@@ -86,7 +74,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         Console.Write("Enter a due date for the task.\nDue date (dd.MM.yyyy): ");
         string[] date = Console.ReadLine()!.Split('.');
         DateTime enteredDate = new DateTime(int.Parse(date[2]), int.Parse(date[1]), int.Parse(date[0]));
-        
+
         await _testerManager.DisplayAllTester();
         Console.Write("\nWrite the username of the person who will be the tester for this project.\nTester: ");
         string testerName = Console.ReadLine()!;
@@ -107,13 +95,19 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
     public async Task ChooseProjectToAddTasks(User stakeHolder)
     {
         await DisplayProjectAsync(stakeHolder);
-        
-        Console.Write($"\nEnter name of project you want to add tasks.\nName: ");
-        var projectName = Console.ReadLine()!;
-        if (projectName == null) Console.WriteLine($"This name does not exist");
 
-        var project = await Service.GetProjectByName(projectName);
-        await CreateTaskForProject(project);
+        Console.Write($"\nEnter name of project you want to add tasks.\nName: ");
+        var projectName = Console.ReadLine();
+
+        try
+        {
+            var project = await Service.GetProjectByName(projectName);
+            await CreateTaskForProject(project);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"This name does not exist. Exception: {ex}");
+        }
     }
 
     private async Task CreateTaskForProject(Project project)
@@ -133,7 +127,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
     public async Task DeleteProjectsWithSteakHolderAsync(User stakeHolder)
     {
         var projects = await Service.GetProjectsByStakeHolder(stakeHolder);
-        
+
         foreach (var project in projects)
         {
             await _projectTaskManager.DeleteTasksWithProject(project);
@@ -147,7 +141,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
 
         return project;
     }
-    
+
     public override Task PerformOperationsAsync(User user)
     {
         throw new NotImplementedException();

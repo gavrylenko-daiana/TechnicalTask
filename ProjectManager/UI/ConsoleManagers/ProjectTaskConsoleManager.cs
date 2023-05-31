@@ -90,12 +90,12 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
         }
     }
 
-    public async Task<List<ProjectTask>> GetTasksByProject(Project project)
-    {
-        List<ProjectTask> tasks = await Service.GetTasksByProject(project);
-
-        return tasks;
-    }
+    // public async Task<List<ProjectTask>> GetTasksByProject(Project project)
+    // {
+    //     List<ProjectTask> tasks = await Service.GetTasksByProject(project);
+    //
+    //     return tasks;
+    // }
 
     public async Task DisplayTaskAsync(ProjectTask task)
     {
@@ -117,18 +117,7 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
     {
         foreach (var task in tasks)
         {
-            Console.WriteLine($"Name: {task.Name}");
-            
-            if (!string.IsNullOrWhiteSpace(task.Description))
-                Console.WriteLine($"Description: {task.Description}");
-
-            if (task.Developer != null)
-                Console.WriteLine($"Developer performing task: {task.Developer.Username}");
-
-            Console.WriteLine($"Tester: {task.Tester.Username}");
-            Console.WriteLine($"Priority: {task.Priority}");
-            Console.WriteLine($"DueDates: {task.DueDates}");
-            Console.WriteLine($"Status: {task.Progress}\n");
+            await DisplayTaskAsync(task);
         }
     }
 
