@@ -9,12 +9,14 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
 {
     private readonly TesterConsoleManager _testerManager;
     private readonly ProjectTaskConsoleManager _projectTaskManager;
+    private readonly UserConsoleManager _userConsoleManager;
 
     public ProjectConsoleManager(IProjectService service, ProjectTaskConsoleManager projectTaskManager,
-        TesterConsoleManager testerManager) : base(service)
+        TesterConsoleManager testerManager, UserConsoleManager userConsoleManager) : base(service)
     {
         _projectTaskManager = projectTaskManager;
         _testerManager = testerManager;
+        _userConsoleManager = userConsoleManager;
     }
 
     public async Task DisplayProjectAsync(User user)
@@ -71,7 +73,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         else
             projectDescription = "empty";
 
-        Console.Write("Enter a due date for the task.\nDue date (dd.MM.yyyy): ");
+        Console.Write("Enter a due date for the project.\nDue date (dd.MM.yyyy): ");
         string[] date = Console.ReadLine()!.Split('.');
         DateTime enteredDate = new DateTime(int.Parse(date[2]), int.Parse(date[1]), int.Parse(date[0]));
 
@@ -116,6 +118,58 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         project.CountAllTasks = project.Tasks.Count;
 
         await UpdateAsync(project.Id, project);
+    }
+
+    public async Task UpdateProjectAsync(User stakeHolder)
+    {
+        await DisplayProjectAsync(stakeHolder);
+
+        Console.Write($"\nEnter name of project you want to update.\nName: ");
+        var projectName = Console.ReadLine()!;
+
+        var project = await Service.GetProjectByName(projectName);
+
+        if (project != null)
+        {
+            while (true)
+            {
+                Console.WriteLine("\nSelect which information you want to change: ");
+                Console.WriteLine("1. Name");
+                Console.WriteLine("2. Description");
+                Console.WriteLine("3. Due date");
+                Console.WriteLine("4. Exit");
+
+                Console.Write("Enter the operation number: ");
+                string input = Console.ReadLine()!;
+
+                switch (input)
+                {
+                    case "1":
+                        Console.Write("Please, edit name.\nName: ");
+                        project.Name = Console.ReadLine()!;
+                        Console.WriteLine("Name was successfully edited");
+                        break;
+                    case "2":
+                        Console.Write("Please, edit description.\nDescription: ");
+                        project.Description = Console.ReadLine()!;
+                        Console.WriteLine("Description was successfully edited");
+                        break;
+                    case "3":
+                        Console.Write("Please, edit a due date for the project.\nDue date (dd.MM.yyyy): ");
+                        string[] date = Console.ReadLine()!.Split('.');
+                        project.DueDates = new DateTime(int.Parse(date[2]), int.Parse(date[1]), int.Parse(date[0]));
+                        Console.WriteLine("Due date was successfully edited");
+                        break;
+                    case "4":
+                        return;
+                    default:
+                        Console.WriteLine("Invalid operation number.");
+                        break;
+                }
+
+                await UpdateAsync(project.Id, project);
+            }
+        }
     }
 
     public async Task DeleteProjectAsync(string projectName)
