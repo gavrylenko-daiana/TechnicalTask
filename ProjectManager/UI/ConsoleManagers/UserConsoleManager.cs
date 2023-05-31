@@ -87,6 +87,8 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
                 Console.WriteLine($"You entered the wrong password");
             }
         }
+
+        await UpdateAsync(getUser.Id, getUser);
     }
 
     private async Task ForgotUserPassword(User getUser)

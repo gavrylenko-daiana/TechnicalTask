@@ -23,9 +23,10 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
             { "2", CreateProjectAsync },
             { "3", CreateTaskToProjectAsync },
             { "4", DisplayInfoStakeHolderAndProjectAsync },
-            // { "5", UpdateProjectAsync },
-            { "6", DeleteOneProjectAsync },
-            { "7", DeleteStakeHolderAsync },
+            { "5", UpdateStakeHolderAsync},
+            { "6", UpdateProjectAsync },
+            { "7", DeleteOneProjectAsync },
+            { "8", DeleteStakeHolderAsync },
         };
     
         while (true)
@@ -35,16 +36,17 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
             Console.WriteLine("2. Create new project");
             Console.WriteLine("3. Create tasks for project");
             Console.WriteLine("4. Display info about you and your projects");
-            Console.WriteLine("5. Update your project");
-            Console.WriteLine("6. Delete your project");
-            Console.WriteLine("7. Delete your account");
-            Console.WriteLine("8. Exit");
+            Console.WriteLine("5. Update your information");
+            Console.WriteLine("6. Update your project");
+            Console.WriteLine("7. Delete your project");
+            Console.WriteLine("8. Delete your account");
+            Console.WriteLine("9. Exit");
 
             Console.Write("Enter the operation number: ");
             string input = Console.ReadLine()!;
 
-            if (input == "8") break;
-            if (input == "7")
+            if (input == "9") break;
+            if (input == "8")
             {
                 await actions[input](user);
                 break;
@@ -102,6 +104,11 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
                           $"Your project(s):\n");
 
         await _projectManager.DisplayProjectAsync(stakeHolder);
+    }
+
+    public async Task UpdateProjectAsync(User stakeHolder)
+    {
+        await _projectManager.UpdateProjectAsync(stakeHolder);
     }
 
     public async Task DeleteOneProjectAsync(User stakeHolder)
