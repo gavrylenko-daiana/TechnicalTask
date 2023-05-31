@@ -4,5 +4,7 @@ public enum Progress
 {
     Planned,
     InProgress,
-    Completed
+    WaitingTester,
+    CompletedTester,
+    CompletedStakeHolder
 }

@@ -16,7 +16,7 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
 
     public override async Task PerformOperationsAsync(User user)
     {
-        Dictionary<string, Func<Task>> actions = new Dictionary<string, Func<Task>>
+        Dictionary<string, Func<User, Task>> actions = new Dictionary<string, Func<User, Task>>
         {
             { "1", DisplayAllUsersAsync },
             { "2", DeleteUserAsync }
@@ -35,13 +35,13 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
             if (input == "3") break;
 
             if (actions.ContainsKey(input))
-                await actions[input]();
+                await actions[input](user);
             else
                 Console.WriteLine("Invalid operation number.");
         }
     }
 
-    public async Task DisplayAllUsersAsync()
+    public async Task DisplayAllUsersAsync(User u)
     {
         IEnumerable<User> users = await GetAllAsync();
 
@@ -91,7 +91,7 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
 
     private async Task ForgotUserPassword(User getUser)
     {
-        int emailCode = await SendMessageEmailUser(getUser.Email);
+        int emailCode = await SendCodeToUser(getUser.Email);
 
         Console.WriteLine("Write the four-digit number that came to your email:");
         int userCode = int.Parse(Console.ReadLine()!);
@@ -109,7 +109,7 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
         }
     }
 
-    public async Task<int> SendMessageEmailUser(string email)
+    public async Task<int> SendCodeToUser(string email)
     {
         Random rand = new Random();
         int emailCode = rand.Next(1000, 9999);
@@ -135,21 +135,45 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
         return emailCode;
     }
 
+    public async Task SendMessageEmailUser(string email, string messageEmail)
+    {
+        Random rand = new Random();
+        string fromMail = "dayana01001@gmail.com";
+        string fromPassword = "oxizguygokwxgxgb";
+
+        MailMessage message = new MailMessage();
+        message.From = new MailAddress(fromMail);
+        message.Subject = "Change notification.";
+        message.To.Add(new MailAddress($"{email}"));
+        message.Body = $"<html><body> {messageEmail} </body></html>";
+        message.IsBodyHtml = true;
+
+        var smtpClient = new SmtpClient("smtp.gmail.com")
+        {
+            Port = 587,
+            Credentials = new NetworkCredential(fromMail, fromPassword),
+            EnableSsl = true,
+        };
+
+        smtpClient.Send(message);
+    }
+
+    public async Task DeleteUserAsync(User user)
+    {
+        Console.WriteLine("Are you sure? 1 - Yes, 2 - No");
+        int choice = int.Parse(Console.ReadLine()!);
+
+        if (choice == 1)
+        {
+            await DeleteAsync(user.Id);
+            Console.WriteLine("The user was successfully deleted");
+        }
+    }
+    
     public async Task<User> AuthenticateUser(string userInput, string password)
     {
         User getUser = await Service.Authenticate(userInput, password);
 
         return getUser;
-    }
-
-    public async Task DeleteUserAsync()
-    {
-        Console.Write("Enter your name.\nYour name: ");
-        string userName = Console.ReadLine() ?? throw new ArgumentNullException("Console.ReadLine()");
-
-        User getUserName = await Service.GetUserByUsernameOrEmail(userName);
-        await DeleteAsync(getUserName.Id);
-    
-        Console.WriteLine("The user was successfully deleted");
     }
 }

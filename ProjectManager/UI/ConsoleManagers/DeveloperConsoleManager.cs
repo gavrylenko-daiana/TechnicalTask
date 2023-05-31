@@ -10,13 +10,15 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
     private readonly UserConsoleManager _userConsoleManager;
     private readonly ProjectConsoleManager _projectManager;
     private readonly ProjectTaskConsoleManager _projectTaskManager;
+    private readonly TesterConsoleManager _testerManager;
 
     public DeveloperConsoleManager(IDeveloperService service, UserConsoleManager userConsoleManager,
-        ProjectConsoleManager projectManager, ProjectTaskConsoleManager projectTaskManager) : base(service)
+        ProjectConsoleManager projectManager, ProjectTaskConsoleManager projectTaskManager, TesterConsoleManager testerManager) : base(service)
     {
         _userConsoleManager = userConsoleManager;
         _projectManager = projectManager;
         _projectTaskManager = projectTaskManager;
+        _testerManager = testerManager;
     }
 
     public override async Task PerformOperationsAsync(User user)
@@ -25,7 +27,8 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
         {
             { "1", DisplayDeveloperAsync },
             { "2", UpdateDeveloperAsync },
-            { "3", AssignTasksToDeveloperAsync }
+            { "3", AssignTasksToDeveloperAsync },
+            { "3", SubmitByTesterAsync }
         };
 
         while (true)
@@ -34,12 +37,13 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
             Console.WriteLine("1. Display information about you");
             Console.WriteLine("2. Update your information");
             Console.WriteLine("3. Select tasks");
-            Console.WriteLine("4. Exit");
+            Console.WriteLine("4. Submit a task for review");
+            Console.WriteLine("5. Exit");
 
             Console.Write("Enter the operation number: ");
             string input = Console.ReadLine()!;
 
-            if (input == "4") break;
+            if (input == "5") break;
             if (actions.ContainsKey(input)) await actions[input](user);
             else Console.WriteLine("Invalid operation number.");
         }
@@ -58,7 +62,7 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
         if (tasks.Count != 0)
         {
             await _projectTaskManager.DisplayAllTaskByProject(tasks);
-            
+
             foreach (var task in tasks)
             {
                 if (task.Developer == null && task.Progress == Progress.Planned)
@@ -71,6 +75,8 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
                         task.Developer = developer;
                         task.Progress = Progress.InProgress;
                         await _projectTaskManager.UpdateAsync(task.Id, task);
+                        
+                        // await _userConsoleManager.SendMessageEmailUser(developer.Email, "The task has been changed from Planned to InProgress");
                     }
                 }
             }
@@ -83,10 +89,26 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
         await _projectManager.UpdateAsync(project.Id, project);
     }
 
+    public async Task SubmitByTesterAsync(User developer)
+    {
+        // await _userConsoleManager.SendMessageEmailUser(developer.Email, "The task has been changed from InProgress to WaitingTester");
+    }
+
     public async Task DisplayDeveloperAsync(User developer)
     {
         Console.WriteLine($"\nUsername: {developer.Username}");
         Console.WriteLine($"Email: {developer.Email}");
+
+        var tasks = await _projectTaskManager.DisplayDeveloperTasks(developer);
+
+        if (tasks != null)
+        {
+            Console.WriteLine($"Your current task(s): ");
+            foreach (var task in tasks)
+            {
+                Console.WriteLine(task);
+            }
+        }
     }
 
     public async Task UpdateDeveloperAsync(User developer)

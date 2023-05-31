@@ -15,7 +15,7 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
     {
         var tasks = new List<ProjectTask>();
         string exit = String.Empty;
-        
+
         while (exit != "exit")
         {
             Console.WriteLine("Create task");
@@ -38,7 +38,7 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
             var priority = Priority.Low;
             Console.WriteLine("Select task priority: \n1) Urgent; 2) High; 3) Medium; 4) Low; 5) Minor;");
             int choice = int.Parse(Console.ReadLine()!);
-            
+
             try
             {
                 priority = choice switch
@@ -65,7 +65,7 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
             };
 
             await CreateAsync(item);
-            
+
             tasks.Add(item);
 
             Console.WriteLine("Are you want to add next task in this project?\nWrite 'exit' - No, Press 'Enter' - yes");
@@ -100,7 +100,7 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
     public async Task DisplayTaskAsync(ProjectTask task)
     {
         Console.WriteLine($"Name: {task.Name}");
-            
+
         if (!string.IsNullOrWhiteSpace(task.Description))
             Console.WriteLine($"Description: {task.Description}");
 
@@ -119,6 +119,13 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
         {
             await DisplayTaskAsync(task);
         }
+    }
+
+    public async Task<IEnumerable<ProjectTask>> DisplayDeveloperTasks(User developer)
+    {
+        var tasks = await Service.GetTasksByUser(developer);
+        
+        return tasks;
     }
 
     public override Task PerformOperationsAsync(User user)

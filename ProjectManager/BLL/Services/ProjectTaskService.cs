@@ -19,10 +19,17 @@ public class ProjectTaskService : GenericService<ProjectTask>, IProjectTaskServi
     //     return tasks;
     // }
 
-    public async Task<ProjectTask> GetTaskAfterCreating()
+    public async Task<IEnumerable<ProjectTask>> GetTasksByUser(User developer)
     {
-        ProjectTask task = (await GetAll()).LastOrDefault()!;
-
-        return task;
+        var tasks = (await GetAll()).Where(t => t.Developer.Id == developer.Id);
+        
+        return tasks;
     }
+
+    // public async Task<ProjectTask> GetTaskAfterCreating()
+    // {
+    //     ProjectTask task = (await GetAll()).LastOrDefault()!;
+    //
+    //     return task;
+    // }
 }
