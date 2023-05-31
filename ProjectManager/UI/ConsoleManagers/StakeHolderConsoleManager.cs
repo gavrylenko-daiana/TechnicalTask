@@ -5,6 +5,9 @@ using UI.Interfaces;
 
 namespace UI.ConsoleManagers;
 
+// надо сделать проверку что count выполненных таксов == count всех тасков, если да,
+// то ПРОЕКТ идет на проверку тестировщику, затем стекхолдеру,
+// а потом Если проходит, то Надо бы сделать список сделанных проектов, или же удалить
 public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, User>, IConsoleManager<User>
 {
     private readonly UserConsoleManager _userConsoleManager;
@@ -23,6 +26,7 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
             { "2", CreateProjectAsync },
             { "3", CreateTaskToProjectAsync },
             { "4", DisplayInfoStakeHolderAndProjectAsync },
+            { "4", CheckApprovedTasksAsync },
             { "5", UpdateStakeHolderAsync},
             { "6", UpdateProjectAsync },
             { "7", DeleteOneProjectAsync },
@@ -36,17 +40,18 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
             Console.WriteLine("2. Create new project");
             Console.WriteLine("3. Create tasks for project");
             Console.WriteLine("4. Display info about you and your projects");
-            Console.WriteLine("5. Update your information");
-            Console.WriteLine("6. Update your project");
-            Console.WriteLine("7. Delete your project");
-            Console.WriteLine("8. Delete your account");
-            Console.WriteLine("9. Exit");
+            Console.WriteLine("5. Check approved tasks");
+            Console.WriteLine("6. Update your information");
+            Console.WriteLine("7. Update your project");
+            Console.WriteLine("8. Delete your project");
+            Console.WriteLine("9. Delete your account");
+            Console.WriteLine("10. Exit");
 
             Console.Write("Enter the operation number: ");
             string input = Console.ReadLine()!;
 
-            if (input == "9") break;
-            if (input == "8")
+            if (input == "10") break;
+            if (input == "9")
             {
                 await actions[input](user);
                 break;
@@ -104,6 +109,11 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
                           $"Your project(s):\n");
 
         await _projectManager.DisplayProjectAsync(stakeHolder);
+    }
+
+    public async Task CheckApprovedTasksAsync(User stakeHolder)
+    {
+        await _projectManager.CheckApproveTasksCountAsync(stakeHolder);
     }
 
     public async Task UpdateProjectAsync(User stakeHolder)

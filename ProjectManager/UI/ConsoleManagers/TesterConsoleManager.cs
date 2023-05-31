@@ -9,7 +9,8 @@ namespace UI.ConsoleManagers;
 
 public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConsoleManager<User>
 {
-    private readonly ProjectTaskConsoleManager _projectTaskManager; // для проверки через прогресс какие задачи Tester должен проверить
+    private readonly ProjectTaskConsoleManager
+        _projectTaskManager; // для проверки через прогресс какие задачи Tester должен проверить
     private readonly UserConsoleManager _userManager;
 
     public TesterConsoleManager(ITesterService service, ProjectTaskConsoleManager projectTaskManager,
@@ -40,7 +41,12 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
         try
         {
             var tasks = await _projectTaskManager.GetTesterTasksAsync(tester);
-
+            if (!tasks.Any())
+            {
+                Console.WriteLine("No tasks to check.");
+                return;
+            }
+            
             foreach (var task in tasks)
             {
                 try
@@ -50,6 +56,7 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
                 catch
                 {
                     Console.WriteLine("No such task exists.");
+                    return;
                 }
 
                 while (true)
@@ -61,24 +68,26 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
                     {
                         task.Progress = Progress.CompletedTester;
                         await _projectTaskManager.UpdateAsync(task.Id, task);
-                        
-                        return;
+
+                        break;
                     }
                     else if (choice == 2)
                     {
                         Console.WriteLine("Select the reason for rejection:\n" +
-                                          "1) Expired due date\n" +
-                                          "2) Need to fix");
+                                          "1. Expired due date\n" +
+                                          "2. Need to fix");
                         int option = int.Parse(Console.ReadLine()!);
 
                         if (option == 1)
-                            await _userManager.SendMessageEmailUser(task.Developer.Email,  $"The task with the name {task.Name} and the deadline of {task.DueDates} has expired.\nThe message was sent from the tester - {task.Tester.Username}.");
+                            await _userManager.SendMessageEmailUser(task.Developer.Email,
+                                $"The task with the name {task.Name} and the deadline of {task.DueDates} has expired.\nThe message was sent from the tester - {task.Tester.Username}.");
                         else if (option == 2)
-                            await _userManager.SendMessageEmailUser(task.Developer.Email, $"The task with the name {task.Name} needs to be fixed.\nThe message was sent from the tester - {task.Tester.Username}.");
-                        else 
+                            await _userManager.SendMessageEmailUser(task.Developer.Email,
+                                $"The task with the name {task.Name} needs to be fixed.\nThe message was sent from the tester - {task.Tester.Username}.");
+                        else
                             Console.WriteLine("Invalid operation number.");
-                        
-                        return;
+
+                        break;
                     }
                     else
                     {
