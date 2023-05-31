@@ -9,14 +9,12 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
 {
     private readonly TesterConsoleManager _testerManager;
     private readonly ProjectTaskConsoleManager _projectTaskManager;
-    private readonly UserConsoleManager _userConsoleManager;
 
     public ProjectConsoleManager(IProjectService service, ProjectTaskConsoleManager projectTaskManager,
-        TesterConsoleManager testerManager, UserConsoleManager userConsoleManager) : base(service)
+        TesterConsoleManager testerManager) : base(service)
     {
         _projectTaskManager = projectTaskManager;
         _testerManager = testerManager;
-        _userConsoleManager = userConsoleManager;
     }
 
     public async Task DisplayProjectAsync(User user)
