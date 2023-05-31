@@ -111,13 +111,25 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
         Console.WriteLine($"\nEnter the name of project you want to delete:\nName: ");
         var projectName = Console.ReadLine()!;
         
-        await _projectManager.DeleteProjectAsync(projectName);
+        Console.WriteLine("Are you sure? 1 - Yes, 2 - No");
+        int choice = int.Parse(Console.ReadLine()!);
+
+        if (choice == 1)
+        {
+            await _projectManager.DeleteProjectAsync(projectName);
+        }
     }
 
     public async Task DeleteStakeHolderAsync(User stakeHolder)
     {
-        await _projectManager.DeleteProjectsWithSteakHolderAsync(stakeHolder);
-        await DeleteAsync(stakeHolder.Id);
+        Console.WriteLine("Are you sure? 1 - Yes, 2 - No");
+        int choice = int.Parse(Console.ReadLine()!);
+
+        if (choice == 1)
+        {
+            await _projectManager.DeleteProjectsWithSteakHolderAsync(stakeHolder);
+            await DeleteAsync(stakeHolder.Id);
+        }
     }
 
     public async Task CreateProjectAsync(User stakeHolder)
