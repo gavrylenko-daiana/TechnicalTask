@@ -121,6 +121,25 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
         }
     }
 
+    public async Task<int> GetApproveTasksAsync(Project project)
+    {
+        int countApproveTasks = 0;
+
+        var approveTasks = await Service.GetApproveTasks(project);
+
+        if (approveTasks.Any())
+        {
+            countApproveTasks += approveTasks.Count;
+            Console.WriteLine($"{project.Name} has {approveTasks.Count} approve task:");
+            foreach (var task in approveTasks)
+            {
+                Console.WriteLine($"- {task}");
+            }
+        }
+
+        return countApproveTasks;
+    }
+
     public async Task<List<ProjectTask>> GetDeveloperTasks(User developer)
     {
         try

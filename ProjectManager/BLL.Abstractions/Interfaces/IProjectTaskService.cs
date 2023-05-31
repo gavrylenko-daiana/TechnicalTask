@@ -10,4 +10,5 @@ public interface IProjectTaskService : IGenericService<ProjectTask>
 
     Task<List<ProjectTask>> GetTasksByDeveloper(User developer);
     Task<List<ProjectTask>> GetTasksByTester(User tester);
+    Task<List<ProjectTask>> GetApproveTasks(Project project);
 }

@@ -118,6 +118,24 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         await UpdateAsync(project.Id, project);
     }
 
+    public async Task CheckApproveTasksCountAsync(User stakeHolder)
+    {
+        var projects = (List<Project>)await Service.GetProjectsByStakeHolder(stakeHolder);
+
+        if (!projects.Any())
+        {
+            Console.WriteLine($"Stake Holder has no projects");
+            return;
+        }
+
+        foreach (var project in projects)
+        {
+            int approveTasks = await _projectTaskManager.GetApproveTasksAsync(project);
+            project.CountDoneTasks += approveTasks;
+            await UpdateAsync(project.Id, project);
+        }
+    }
+
     public async Task UpdateProjectAsync(User stakeHolder)
     {
         await DisplayProjectAsync(stakeHolder);

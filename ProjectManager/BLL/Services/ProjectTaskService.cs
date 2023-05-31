@@ -35,6 +35,13 @@ public class ProjectTaskService : GenericService<ProjectTask>, IProjectTaskServi
 
         return tasks;
     }
+    
+    public Task<List<ProjectTask>> GetApproveTasks(Project project)
+    {
+        var approveTasks = project.Tasks.Where(t => t.Progress == Progress.CompletedTester).ToList();
+        
+        return Task.FromResult(approveTasks);
+    }
 
     // public async Task<ProjectTask> GetTaskAfterCreating()
     // {
