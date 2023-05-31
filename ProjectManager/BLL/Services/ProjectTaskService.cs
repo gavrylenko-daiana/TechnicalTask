@@ -21,8 +21,8 @@ public class ProjectTaskService : GenericService<ProjectTask>, IProjectTaskServi
 
     public async Task<IEnumerable<ProjectTask>> GetTasksByUser(User developer)
     {
-        var tasks = (await GetAll()).Where(t => t.Developer.Id == developer.Id);
-        
+        var tasks = (await GetAll()).Where(t => t.Developer != null && t.Developer.Id == developer.Id);
+
         return tasks;
     }
 

@@ -2,7 +2,7 @@ namespace Core.Enums;
 
 public enum Progress
 {
-    Planned,
+    Planned = 0,
     InProgress,
     WaitingTester,
     CompletedTester,

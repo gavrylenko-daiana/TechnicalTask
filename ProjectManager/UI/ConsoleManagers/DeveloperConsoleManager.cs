@@ -28,7 +28,7 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
             { "1", DisplayDeveloperAsync },
             { "2", UpdateDeveloperAsync },
             { "3", AssignTasksToDeveloperAsync },
-            { "3", SubmitByTesterAsync }
+            // { "4", SubmitByTesterAsync }
         };
 
         while (true)
@@ -106,7 +106,7 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
             Console.WriteLine($"Your current task(s): ");
             foreach (var task in tasks)
             {
-                Console.WriteLine(task);
+                Console.WriteLine(task.Name);
             }
         }
     }
