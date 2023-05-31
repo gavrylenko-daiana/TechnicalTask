@@ -1,4 +1,5 @@
 using BLL.Abstractions.Interfaces;
+using Core.Enums;
 using Core.Models;
 using DAL.Abstractions.Interfaces;
 
@@ -19,9 +20,18 @@ public class ProjectTaskService : GenericService<ProjectTask>, IProjectTaskServi
     //     return tasks;
     // }
 
-    public async Task<IEnumerable<ProjectTask>> GetTasksByUser(User developer)
+    public async Task<List<ProjectTask>> GetTasksByDeveloper(User developer)
     {
-        var tasks = (await GetAll()).Where(t => t.Developer != null && t.Developer.Id == developer.Id);
+        var tasks = (await GetAll()).Where(t => t.Developer != null && t.Developer.Id == developer.Id).ToList();
+
+        return tasks;
+    }
+
+    public async Task<List<ProjectTask>> GetTasksByTester(User tester)
+    {
+        var tasks = (await GetAll()).Where(t => t.Tester != null
+                                                && t.Tester.Id == tester.Id
+                                                && t.Progress == Progress.WaitingTester).ToList();
 
         return tasks;
     }

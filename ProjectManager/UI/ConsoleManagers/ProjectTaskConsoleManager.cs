@@ -121,10 +121,37 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
         }
     }
 
-    public async Task<IEnumerable<ProjectTask>> DisplayDeveloperTasks(User developer)
+    public async Task<List<ProjectTask>> GetDeveloperTasks(User developer)
     {
-        var tasks = await Service.GetTasksByUser(developer);
-        
+        try
+        {
+            var tasks = await Service.GetTasksByDeveloper(developer);
+            return tasks;
+        }
+        catch
+        {
+            Console.WriteLine($"Task list is empty.");
+        }
+
+        return null!;
+    }
+
+    public async Task DeleteDeveloperFromTasksAsync(List<ProjectTask> tasks)
+    {
+        if (tasks.Any())
+        {
+            foreach (var task in tasks)
+            {
+                task.Developer = null!;
+                await UpdateAsync(task.Id, task);
+            }
+        }
+    }
+
+    public async Task<List<ProjectTask>> GetTesterTasksAsync(User tester)
+    {
+        var tasks = await Service.GetTasksByTester(tester);
+
         return tasks;
     }
 

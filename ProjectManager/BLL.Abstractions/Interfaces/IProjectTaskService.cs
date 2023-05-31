@@ -8,5 +8,6 @@ public interface IProjectTaskService : IGenericService<ProjectTask>
 
     // Task<ProjectTask> GetTaskAfterCreating();
 
-    Task<IEnumerable<ProjectTask>> GetTasksByUser(User developer);
+    Task<List<ProjectTask>> GetTasksByDeveloper(User developer);
+    Task<List<ProjectTask>> GetTasksByTester(User tester);
 }
