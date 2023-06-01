@@ -31,9 +31,9 @@ public class ProjectService : GenericService<Project>, IProjectService
         return project;
     }
 
-    public async Task<IEnumerable<Project>> GetProjectsByStakeHolder(User stakeHolder)
+    public async Task<List<Project>> GetProjectsByStakeHolder(User stakeHolder)
     {
-        IEnumerable<Project> projects = (await GetAll()).Where(p => p.StakeHolder.Id == stakeHolder.Id);
+        List<Project> projects = (await GetAll()).Where(p => p.StakeHolder != null && p.StakeHolder.Id == stakeHolder.Id).ToList();
 
         return projects;
     }

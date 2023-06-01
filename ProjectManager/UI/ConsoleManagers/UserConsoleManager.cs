@@ -52,7 +52,7 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
                               $"\nRole: {user.Role}");
         }
     }
-
+    
     public async Task UpdateUserPassword(User getUser)
     {
         string check = String.Empty;

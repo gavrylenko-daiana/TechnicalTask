@@ -89,7 +89,7 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
             await DeleteAsync(task.Id);
         }
     }
-
+    
     // public async Task<List<ProjectTask>> GetTasksByProject(Project project)
     // {
     //     List<ProjectTask> tasks = await Service.GetTasksByProject(project);
@@ -155,6 +155,21 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
         return null!;
     }
     
+    public async Task<List<ProjectTask>> GetTesterTasks(User developer)
+    {
+        try
+        {
+            var tasks = await Service.GetWaitTasksByTester(developer);
+            return tasks;
+        }
+        catch
+        {
+            Console.WriteLine($"Task list is empty.");
+        }
+
+        return null!;
+    }
+    
     public async Task DeleteDeveloperFromTasksAsync(List<ProjectTask> tasks)
     {
         if (tasks.Any())
@@ -166,10 +181,22 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
             }
         }
     }
+    
+    public async Task DeleteTesterFromTasksAsync(List<ProjectTask> tasks)
+    {
+        if (tasks.Any())
+        {
+            foreach (var task in tasks)
+            {
+                task.Tester = null!;
+                await UpdateAsync(task.Id, task);
+            }
+        }
+    }
 
     public async Task<List<ProjectTask>> GetTesterTasksAsync(User tester)
     {
-        var tasks = await Service.GetTasksByTester(tester);
+        var tasks = await Service.GetWaitTasksByTester(tester);
 
         return tasks;
     }

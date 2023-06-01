@@ -26,11 +26,11 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
             { "2", CreateProjectAsync },
             { "3", CreateTaskToProjectAsync },
             { "4", DisplayInfoStakeHolderAndProjectAsync },
-            { "4", CheckApprovedTasksAsync },
-            { "5", UpdateStakeHolderAsync},
-            { "6", UpdateProjectAsync },
-            { "7", DeleteOneProjectAsync },
-            { "8", DeleteStakeHolderAsync },
+            { "5", CheckApprovedTasksAsync },
+            { "6", UpdateStakeHolderAsync},
+            { "7", UpdateProjectAsync },
+            { "8", DeleteOneProjectAsync },
+            { "9", DeleteStakeHolderAsync },
         };
     
         while (true)

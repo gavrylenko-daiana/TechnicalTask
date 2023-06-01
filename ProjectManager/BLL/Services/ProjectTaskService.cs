@@ -26,13 +26,20 @@ public class ProjectTaskService : GenericService<ProjectTask>, IProjectTaskServi
 
         return tasks;
     }
-
+    
     public async Task<List<ProjectTask>> GetTasksByTester(User tester)
+    {
+        var tasks = (await GetAll()).Where(t => t.Tester != null && t.Tester.Id == tester.Id).ToList();
+
+        return tasks;
+    }
+
+    public async Task<List<ProjectTask>> GetWaitTasksByTester(User tester)
     {
         var tasks = (await GetAll()).Where(t => t.Tester != null
                                                 && t.Tester.Id == tester.Id
                                                 && t.Progress == Progress.WaitingTester).ToList();
-
+        
         return tasks;
     }
 

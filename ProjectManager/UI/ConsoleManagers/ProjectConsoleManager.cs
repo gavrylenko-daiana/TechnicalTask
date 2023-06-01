@@ -120,7 +120,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
 
     public async Task CheckApproveTasksCountAsync(User stakeHolder)
     {
-        var projects = (List<Project>)await Service.GetProjectsByStakeHolder(stakeHolder);
+        var projects = await Service.GetProjectsByStakeHolder(stakeHolder);
 
         if (!projects.Any())
         {

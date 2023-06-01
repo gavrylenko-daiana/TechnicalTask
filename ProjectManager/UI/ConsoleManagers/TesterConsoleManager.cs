@@ -9,20 +9,47 @@ namespace UI.ConsoleManagers;
 
 public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConsoleManager<User>
 {
-    private readonly ProjectTaskConsoleManager
-        _projectTaskManager; // для проверки через прогресс какие задачи Tester должен проверить
     private readonly UserConsoleManager _userManager;
+    private readonly ProjectTaskConsoleManager _projectTaskManager;
 
-    public TesterConsoleManager(ITesterService service, ProjectTaskConsoleManager projectTaskManager,
-        UserConsoleManager userManager) : base(service)
+    public TesterConsoleManager(ITesterService service, UserConsoleManager userManager, ProjectTaskConsoleManager projectTaskManager) : base(service)
     {
-        _projectTaskManager = projectTaskManager;
         _userManager = userManager;
+        _projectTaskManager = projectTaskManager;
     }
 
-    public override Task PerformOperationsAsync(User user)
+    public override async Task PerformOperationsAsync(User user)
     {
-        throw new NotImplementedException();
+        Dictionary<string, Func<User, Task>> actions = new Dictionary<string, Func<User, Task>>
+        {
+            { "1", DisplayTesterAsync },
+            { "2", UpdateTesterAsync },
+            { "3", CheckTasksAsync },
+            { "4", DeleteTesterAsync }
+        };
+
+        while (true)
+        {
+            Console.WriteLine("\nUser operations:");
+            Console.WriteLine("1. Display info about you");
+            Console.WriteLine("2. Update your information");
+            Console.WriteLine("3. Check tasks");
+            Console.WriteLine("4. Delete your account");
+            Console.WriteLine("5. Exit");
+
+            Console.Write("Enter the operation number: ");
+            string input = Console.ReadLine()!;
+
+            if (input == "4")
+            {
+                await actions[input](user);
+                break;
+            }
+
+            if (input == "5") break;
+            if (actions.ContainsKey(input)) await actions[input](user);
+            else Console.WriteLine("Invalid operation number.");
+        }
     }
 
     public async Task DisplayAllTester()
@@ -31,9 +58,16 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
 
         foreach (var tester in testers)
         {
-            Console.WriteLine($"\nName: {tester.Username}");
-            Console.WriteLine($"{tester.Email}");
+            await DisplayTesterAsync(tester);
         }
+    }
+
+    public async Task DisplayTesterAsync(User tester)
+    {
+        Console.WriteLine($"\nName: {tester.Username}");
+        Console.WriteLine($"Email: {tester.Email}");
+
+        //выывод тасков с прогресс.веит
     }
 
     public async Task CheckTasksAsync(User tester)
@@ -46,7 +80,7 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
                 Console.WriteLine("No tasks to check.");
                 return;
             }
-            
+
             foreach (var task in tasks)
             {
                 try
@@ -61,7 +95,7 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
 
                 while (true)
                 {
-                    Console.WriteLine("Do you want to approve this task?\nEnter 1 - Yes, 2 - No");
+                     Console.WriteLine("Do you want to approve this task?\nEnter 1 - Yes, 2 - No");
                     int choice = int.Parse(Console.ReadLine()!);
 
                     if (choice == 1)
@@ -138,6 +172,20 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
             }
 
             await UpdateAsync(tester.Id, tester);
+        }
+    }
+
+    public async Task DeleteTesterAsync(User tester)
+    {
+        Console.WriteLine("Are you sure? 1 - Yes, 2 - No");
+        int choice = int.Parse(Console.ReadLine()!);
+
+        if (choice == 1)
+        {
+            //проекты тоже
+            var tasks = await _projectTaskManager.GetTesterTasks(tester);
+            await _projectTaskManager.DeleteTesterFromTasksAsync(tasks);
+            await DeleteAsync(tester.Id);
         }
     }
 

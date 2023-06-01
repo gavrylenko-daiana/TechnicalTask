@@ -8,7 +8,7 @@ public interface IProjectService : IGenericService<Project>
 
     Task<Project> GetProjectByName(string projectName);
 
-    Task<IEnumerable<Project>> GetProjectsByStakeHolder(User stakeHolder);
+    Task<List<Project>> GetProjectsByStakeHolder(User stakeHolder);
 
     Task<Project> GetProjectByTask(ProjectTask task);
 }
