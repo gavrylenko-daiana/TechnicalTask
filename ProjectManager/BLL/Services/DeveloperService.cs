@@ -28,6 +28,4 @@ public class DeveloperService : UserService, IDeveloperService
 
         return developer;
     }
-    
-    
 }

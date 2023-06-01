@@ -10,8 +10,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
     private readonly TesterConsoleManager _testerManager;
     private readonly ProjectTaskConsoleManager _projectTaskManager;
 
-    public ProjectConsoleManager(IProjectService service, ProjectTaskConsoleManager projectTaskManager,
-        TesterConsoleManager testerManager) : base(service)
+    public ProjectConsoleManager(IProjectService service, ProjectTaskConsoleManager projectTaskManager, TesterConsoleManager testerManager) : base(service)
     {
         _projectTaskManager = projectTaskManager;
         _testerManager = testerManager;
@@ -101,7 +100,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
 
         try
         {
-            var project = await Service.GetProjectByName(projectName);
+            var project = await Service.GetProjectByName(projectName!);
             await CreateTaskForProject(project);
         }
         catch (Exception ex)
@@ -230,9 +229,15 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
     public async Task DeleteCurrentTaskAsync(ProjectTask task)
     {
         var project = await Service.GetProjectByTask(task);
-        project.CountAllTasks -= 1;
-        
-        await _projectTaskManager.DeleteTaskAsync(task);
+        if (project != null && project.Tasks.Any())
+        {
+            project.Tasks.RemoveAll(x => x.Id == task.Id);
+            project.CountAllTasks -= 1;
+            await UpdateAsync(project.Id, project);
+            await _projectTaskManager.DeleteTaskAsync(task);
+        }
+
+        Console.WriteLine($"Error");
     }
 
     public async Task UpdateTasksAsync(ProjectTask task)

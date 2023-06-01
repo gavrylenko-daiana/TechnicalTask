@@ -93,7 +93,6 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
     public async Task DeleteTaskAsync(ProjectTask task)
     {
         await DeleteAsync(task.Id);
-        await UpdateAsync(task.Id, task);
     }
 
     // public async Task<List<ProjectTask>> GetTasksByProject(Project project)

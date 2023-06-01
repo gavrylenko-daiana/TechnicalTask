@@ -32,8 +32,12 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
             Console.Write("Enter the operation number: ");
             string input = Console.ReadLine()!;
 
+            if (input == "2")
+            {
+                await actions[input](user);
+                break;
+            }
             if (input == "3") break;
-
             if (actions.ContainsKey(input))
                 await actions[input](user);
             else
