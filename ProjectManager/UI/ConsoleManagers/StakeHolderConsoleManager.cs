@@ -109,9 +109,9 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
     private async Task DisplayInfoStakeHolderAndProjectAsync(User stakeHolder)
     {
         Console.Write($"\nYour username: {stakeHolder.Username}\n" +
-                      $"Your email: {stakeHolder.Email}\n" +
-                      $"Your project(s):\n");
+                      $"Your email: {stakeHolder.Email}\n");
 
+        Console.WriteLine("Your project(s):\n");
         await _projectManager.DisplayProjectAsync(stakeHolder);
     }
 
