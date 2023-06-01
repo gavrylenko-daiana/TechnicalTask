@@ -52,8 +52,8 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
                               $"\nRole: {user.Role}");
         }
     }
-    
-     public async Task UpdateUserPassword(User getUser)
+
+    public async Task UpdateUserPassword(User getUser)
     {
         string check = String.Empty;
 
@@ -171,7 +171,7 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
             Console.WriteLine("The user was successfully deleted");
         }
     }
-    
+
     public async Task<User> AuthenticateUser(string userInput, string password)
     {
         User getUser = await Service.Authenticate(userInput, password);

@@ -212,6 +212,13 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         return project;
     }
 
+    public async Task<Project> GetProjectByTaskAsync(ProjectTask task)
+    {
+        var project = await Service.GetProjectByTask(task);
+
+        return project;
+    }
+
     public override Task PerformOperationsAsync(User user)
     {
         throw new NotImplementedException();

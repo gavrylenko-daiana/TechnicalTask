@@ -76,8 +76,7 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
                 {
                     if (task.Developer == null && task.Progress == Progress.Planned)
                     {
-                        Console.WriteLine(
-                            $"Can {developer.Username} take task {task.Name}?\nPlease, write '1' - yes or '2' - no");
+                        Console.WriteLine($"Can {developer.Username} take task {task.Name}?\nPlease, write '1' - yes or '2' - no");
                         var choice = int.Parse(Console.ReadLine()!);
 
                         if (choice == 1)
@@ -107,14 +106,31 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
     public async Task SendToSubmitByTesterAsync(User developer)
     {
         var tasks = await _projectTaskManager.GetDeveloperTasks(developer);
-        
+
         if (tasks.Any())
         {
             foreach (var task in tasks)
             {
-                task.Progress = Progress.WaitingTester;
-                //await _userConsoleManager.SendMessageEmailUser(developer.Email, "The task has been changed from InProgress to WaitingTester");
-                //await _userConsoleManager.SendMessageEmailUser(task.Tester.Email, "A new task awaits your review.");
+                if (task.Progress == Progress.InProgress)
+                {
+                    await _projectTaskManager.DisplayTaskAsync(task);
+                    Console.WriteLine($"Are you wanna send to submit this task?\n1 - Yes, 2 - No");
+                    var option = int.Parse(Console.ReadLine()!);
+
+                    if (option == 1)
+                    {
+                        task.Progress = Progress.WaitingTester;
+                        await _projectTaskManager.UpdateAsync(task.Id, task);
+
+                        var project = await _projectManager.GetProjectByTaskAsync(task);
+                        
+                        project.Tasks.First(t => t.Id == task.Id).Progress = Progress.WaitingTester;
+                        await _projectManager.UpdateAsync(project.Id, project);
+
+                        //await _userConsoleManager.SendMessageEmailUser(developer.Email, $"The task - {task.Name} has been changed from InProgress to WaitingTester");
+                        //await _userConsoleManager.SendMessageEmailUser(task.Tester.Email, "A new task - {task.Name} awaits your review.");
+                    }
+                }
             }
         }
     }

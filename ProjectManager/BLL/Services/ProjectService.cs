@@ -25,6 +25,7 @@ public class ProjectService : GenericService<Project>, IProjectService
     public async Task<Project> GetProjectByName(string projectName)
     {
         Project project = await GetByPredicate(p => p.Name == projectName);
+        
         if (project == null) throw new ArgumentNullException(nameof(project));
 
         return project;
@@ -35,5 +36,12 @@ public class ProjectService : GenericService<Project>, IProjectService
         IEnumerable<Project> projects = (await GetAll()).Where(p => p.StakeHolder.Id == stakeHolder.Id);
 
         return projects;
+    }
+
+    public async Task<Project> GetProjectByTask(ProjectTask task)
+    {
+        var project = await GetByPredicate(p => p.Tasks.Any(t => t.Id == task.Id));
+        
+        return project;
     }
 }

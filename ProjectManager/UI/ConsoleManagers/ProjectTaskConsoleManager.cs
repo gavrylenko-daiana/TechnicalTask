@@ -99,7 +99,7 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
 
     public async Task DisplayTaskAsync(ProjectTask task)
     {
-        Console.WriteLine($"Name: {task.Name}");
+        Console.WriteLine($"\nName: {task.Name}");
 
         if (!string.IsNullOrWhiteSpace(task.Description))
             Console.WriteLine($"Description: {task.Description}");
@@ -154,7 +154,7 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
 
         return null!;
     }
-
+    
     public async Task DeleteDeveloperFromTasksAsync(List<ProjectTask> tasks)
     {
         if (tasks.Any())
