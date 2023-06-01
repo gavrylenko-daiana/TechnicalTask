@@ -13,9 +13,7 @@ public class ProjectTaskService : GenericService<ProjectTask>, IProjectTaskServi
 
     // public async Task<List<ProjectTask>> GetTasksByProject(Project project)
     // {
-    //     var tasks = project.ClaimTaskDeveloper.Values
-    //         .SelectMany(tasks => tasks)
-    //         .ToList();
+    //     var tasks = project.Tasks.All(tasks).ToList();
     //
     //     return tasks;
     // }

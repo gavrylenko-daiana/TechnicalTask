@@ -86,10 +86,16 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
     {
         foreach (var task in project.Tasks)
         {
-            await DeleteAsync(task.Id);
+            await DeleteTaskAsync(task);
         }
     }
-    
+
+    public async Task DeleteTaskAsync(ProjectTask task)
+    {
+        await DeleteAsync(task.Id);
+        await UpdateAsync(task.Id, task);
+    }
+
     // public async Task<List<ProjectTask>> GetTasksByProject(Project project)
     // {
     //     List<ProjectTask> tasks = await Service.GetTasksByProject(project);
@@ -111,6 +117,11 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
         Console.WriteLine($"Priority: {task.Priority}");
         Console.WriteLine($"DueDates: {task.DueDates}");
         Console.WriteLine($"Status: {task.Progress}\n");
+    }
+
+    public async Task UpdateTaskAsync(ProjectTask task)
+    {
+        await UpdateAsync(task.Id, task);
     }
 
     public async Task DisplayAllTaskByProject(List<ProjectTask> tasks)
@@ -154,7 +165,7 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
 
         return null!;
     }
-    
+
     public async Task<List<ProjectTask>> GetTesterTasks(User developer)
     {
         try
@@ -169,7 +180,7 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
 
         return null!;
     }
-    
+
     public async Task DeleteDeveloperFromTasksAsync(List<ProjectTask> tasks)
     {
         if (tasks.Any())
@@ -181,7 +192,7 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
             }
         }
     }
-    
+
     public async Task DeleteTesterFromTasksAsync(List<ProjectTask> tasks)
     {
         if (tasks.Any())

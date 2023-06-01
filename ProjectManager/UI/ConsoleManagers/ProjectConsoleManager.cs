@@ -219,6 +219,32 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         return project;
     }
 
+    public async Task<List<Project>> GetProjectsByStakeHolder(User stakeHolder)
+    {
+        var projects = await Service.GetProjectsByStakeHolder(stakeHolder);
+        if (projects == null) Console.WriteLine($"Failed to get a stake holder for the project");
+
+        return projects!;
+    }
+
+    public async Task DeleteCurrentTaskAsync(ProjectTask task)
+    {
+        var project = await Service.GetProjectByTask(task);
+        project.CountAllTasks -= 1;
+        
+        await _projectTaskManager.DeleteTaskAsync(task);
+    }
+
+    public async Task UpdateTasksAsync(ProjectTask task)
+    {
+        await _projectTaskManager.UpdateTaskAsync(task);
+    }
+
+    public async Task DisplayOneTaskAsync(ProjectTask task)
+    {
+        await _projectTaskManager.DisplayTaskAsync(task);
+    }
+
     public override Task PerformOperationsAsync(User user)
     {
         throw new NotImplementedException();
