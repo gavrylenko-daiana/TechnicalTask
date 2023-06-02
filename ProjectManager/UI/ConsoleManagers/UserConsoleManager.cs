@@ -24,6 +24,8 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
 
         while (true)
         {
+            Console.ReadKey();
+            Console.Clear();
             Console.WriteLine("\nUser operations:");
             Console.WriteLine("1. Display all users");
             Console.WriteLine("2. Delete a user");
@@ -97,7 +99,7 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
 
     private async Task ForgotUserPassword(User getUser)
     {
-        int emailCode = await SendCodeToUser(getUser.Email);
+        int emailCode = await Service.SendCodeToUser(getUser.Email);
 
         Console.WriteLine("Write the four-digit number that came to your email:");
         int userCode = int.Parse(Console.ReadLine()!);
@@ -115,53 +117,9 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
         }
     }
 
-    public async Task<int> SendCodeToUser(string email)
-    {
-        Random rand = new Random();
-        int emailCode = rand.Next(1000, 9999);
-        string fromMail = "dayana01001@gmail.com";
-        string fromPassword = "oxizguygokwxgxgb";
-
-        MailMessage message = new MailMessage();
-        message.From = new MailAddress(fromMail);
-        message.Subject = "Verify code for update password.";
-        message.To.Add(new MailAddress($"{email}"));
-        message.Body = $"<html><body> Your code: {emailCode} </body></html>";
-        message.IsBodyHtml = true;
-
-        var smtpClient = new SmtpClient("smtp.gmail.com")
-        {
-            Port = 587,
-            Credentials = new NetworkCredential(fromMail, fromPassword),
-            EnableSsl = true,
-        };
-
-        smtpClient.Send(message);
-
-        return emailCode;
-    }
-
     public async Task SendMessageEmailUser(string email, string messageEmail)
     {
-        Random rand = new Random();
-        string fromMail = "dayana01001@gmail.com";
-        string fromPassword = "oxizguygokwxgxgb";
-
-        MailMessage message = new MailMessage();
-        message.From = new MailAddress(fromMail);
-        message.Subject = "Change notification.";
-        message.To.Add(new MailAddress($"{email}"));
-        message.Body = $"<html><body> {messageEmail} </body></html>";
-        message.IsBodyHtml = true;
-
-        var smtpClient = new SmtpClient("smtp.gmail.com")
-        {
-            Port = 587,
-            Credentials = new NetworkCredential(fromMail, fromPassword),
-            EnableSsl = true,
-        };
-
-        smtpClient.Send(message);
+        await Service.SendMessageEmailUserAsync(email, messageEmail);
     }
 
     public async Task DeleteUserAsync(User user)

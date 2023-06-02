@@ -11,4 +11,8 @@ public interface IUserService : IGenericService<User>
     Task<List<User>> GetUsersByRole(string role);
 
     Task UpdatePassword(Guid getUserId, string newUserPassword);
+
+    Task<int> SendCodeToUser(string email);
+
+    Task SendMessageEmailUserAsync(string email, string messageEmail);
 }

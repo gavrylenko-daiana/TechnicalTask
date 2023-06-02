@@ -48,6 +48,28 @@ public class ProjectTaskService : GenericService<ProjectTask>, IProjectTaskServi
         return Task.FromResult(approveTasks);
     }
 
+    public async Task<Priority> GetPriority(int choice, Priority priority)
+    {
+        try
+        {
+            priority = choice switch
+            {
+                1 => Priority.Urgent,
+                2 => Priority.High,
+                3 => Priority.Medium,
+                4 => Priority.Low,
+                5 => Priority.Minor,
+            };
+
+            return priority;
+        }
+        catch
+        {
+            Console.WriteLine("Such a type of priority does not exist!");
+            return 0;
+        }
+    }
+
     // public async Task<ProjectTask> GetTaskAfterCreating()
     // {
     //     ProjectTask task = (await GetAll()).LastOrDefault()!;
