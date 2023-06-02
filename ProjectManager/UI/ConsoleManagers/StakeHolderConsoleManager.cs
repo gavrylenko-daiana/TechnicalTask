@@ -12,12 +12,14 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
 {
     private readonly UserConsoleManager _userConsoleManager;
     private readonly ProjectConsoleManager _projectManager;
+    private readonly TesterConsoleManager _testerManager;
 
     public StakeHolderConsoleManager(IStakeHolderService service, UserConsoleManager userConsoleManager,
-        ProjectConsoleManager projectManager) : base(service)
+        ProjectConsoleManager projectManager, TesterConsoleManager testerManager) : base(service)
     {
         _userConsoleManager = userConsoleManager;
         _projectManager = projectManager;
+        _testerManager = testerManager;
     }
 
     public override async Task PerformOperationsAsync(User user)
@@ -61,6 +63,7 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
                 await actions[input](user);
                 break;
             }
+
             if (input == "11") break;
             if (actions.ContainsKey(input)) await actions[input](user);
             else Console.WriteLine("Invalid operation number.");
@@ -113,7 +116,7 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
         Console.Write($"\nYour username: {stakeHolder.Username}\n" +
                       $"Your email: {stakeHolder.Email}\n");
 
-        Console.WriteLine("Your project(s):\n");
+        Console.Write("\nYour project(s):");
         await _projectManager.DisplayProjectAsync(stakeHolder);
     }
 
@@ -158,6 +161,7 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
     public async Task UpdateTaskAsync(User stakeHolder)
     {
         var projects = await _projectManager.GetProjectsByStakeHolder(stakeHolder);
+
         if (projects == null)
         {
             Console.WriteLine("Failed to get projects.");
@@ -186,12 +190,13 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
     public async Task DeleteTasksAsync(User stakeHolder)
     {
         var projects = await _projectManager.GetProjectsByStakeHolder(stakeHolder);
+
         if (projects == null)
         {
             Console.WriteLine("Failed to get projects.");
             return;
         }
-        
+
         foreach (var project in projects)
         {
             var tasks = project.Tasks;
@@ -212,7 +217,38 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
 
     public async Task CreateProjectAsync(User stakeHolder)
     {
-        await _projectManager.CreateNewProjectAsync(stakeHolder);
+        Console.WriteLine("Create project");
+        Console.Write("Please, write name of project.\nName: ");
+        string projectName = Console.ReadLine()!;
+
+        string projectDescription;
+        Console.WriteLine("Optionally add a description to the project.\nPress 'Enter' to add");
+        ConsoleKeyInfo keyInfo = Console.ReadKey();
+
+        if (keyInfo.Key == ConsoleKey.Enter)
+            projectDescription = Console.ReadLine()!;
+        else
+            projectDescription = "empty";
+
+        Console.Write("Enter a due date for the project.\nDue date (dd.MM.yyyy): ");
+        string[] date = Console.ReadLine()!.Split('.');
+        DateTime enteredDate = new DateTime(int.Parse(date[2]), int.Parse(date[1]), int.Parse(date[0]));
+
+        await _testerManager.DisplayAllTester();
+        Console.Write("\nWrite the username of the person who will be the tester for this project.\nTester: ");
+        string testerName = Console.ReadLine()!;
+
+        var tester = await _testerManager.GetTesterByName(testerName);
+
+        await _projectManager.CreateAsync(new Project
+        {
+            Name = projectName,
+            Description = projectDescription,
+            Progress = Progress.Planned,
+            StakeHolder = stakeHolder,
+            DueDates = enteredDate,
+            Tester = tester
+        });
     }
 
     public async Task CreateTaskToProjectAsync(User stakeHolder)

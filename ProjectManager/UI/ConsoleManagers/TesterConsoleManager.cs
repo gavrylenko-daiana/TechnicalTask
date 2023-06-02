@@ -11,11 +11,13 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
 {
     private readonly UserConsoleManager _userManager;
     private readonly ProjectTaskConsoleManager _projectTaskManager;
+    private readonly ProjectConsoleManager _projectManager;
 
-    public TesterConsoleManager(ITesterService service, UserConsoleManager userManager, ProjectTaskConsoleManager projectTaskManager) : base(service)
+    public TesterConsoleManager(ITesterService service, UserConsoleManager userManager, ProjectTaskConsoleManager projectTaskManager, ProjectConsoleManager projectManager) : base(service)
     {
         _userManager = userManager;
         _projectTaskManager = projectTaskManager;
+        _projectManager = projectManager;
     }
 
     public override async Task PerformOperationsAsync(User user)
@@ -69,7 +71,17 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
         Console.WriteLine($"\nName: {tester.Username}");
         Console.WriteLine($"Email: {tester.Email}");
 
-        //выывод тасков с прогресс.веит
+        var tasks = await _projectTaskManager.GetWaitTasksByTesterAsync(tester);
+
+        if (tasks != null)
+        {
+            Console.WriteLine("\nTasks awaiting your review:");
+            await _projectTaskManager.DisplayAllTaskByProject(tasks);
+        }
+        else
+        {
+            Console.WriteLine("Tasks did not come to check.");
+        }
     }
 
     public async Task CheckTasksAsync(User tester)
@@ -104,6 +116,12 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
                     {
                         task.Progress = Progress.CompletedTester;
                         await _projectTaskManager.UpdateAsync(task.Id, task);
+
+                        var project = await _projectManager.GetProjectByTaskAsync(task);
+                        project.CountDoneTasks += 1;
+                        project.Tasks.First(t => t.Id == task.Id).Progress = task.Progress; //
+
+                        await _projectManager.UpdateAsync(project.Id, project);
 
                         break;
                     }
@@ -184,9 +202,8 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
 
         if (choice == 1)
         {
-            //проекты тоже
-            var tasks = await _projectTaskManager.GetTesterTasks(tester);
-            await _projectTaskManager.DeleteTesterFromTasksAsync(tasks);
+            await _projectManager.DeleteTesterFromProjectsAsync(tester);
+            await _projectTaskManager.DeleteTesterFromTasksAsync(tester);
             await DeleteAsync(tester.Id);
         }
     }

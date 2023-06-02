@@ -89,7 +89,6 @@ public class UserService : GenericService<User>, IUserService
     
     public async Task SendMessageEmailUserAsync(string email, string messageEmail)
     {
-        Random rand = new Random();
         string fromMail = "dayana01001@gmail.com";
         string fromPassword = "oxizguygokwxgxgb";
 

@@ -7,19 +7,17 @@ namespace UI.ConsoleManagers;
 
 public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, IConsoleManager<Project>
 {
-    private readonly TesterConsoleManager _testerManager;
     private readonly ProjectTaskConsoleManager _projectTaskManager;
 
-    public ProjectConsoleManager(IProjectService service, ProjectTaskConsoleManager projectTaskManager, TesterConsoleManager testerManager) : base(service)
+    public ProjectConsoleManager(IProjectService service, ProjectTaskConsoleManager projectTaskManager) : base(service)
     {
         _projectTaskManager = projectTaskManager;
-        _testerManager = testerManager;
     }
 
     public async Task DisplayProjectAsync(User user)
     {
         IEnumerable<Project> projects = await Service.GetProjectsByStakeHolder(user);
-        if (projects == null)
+        if (!projects.Any())
         {
             Console.WriteLine("Project list is empty");
             return;
@@ -60,47 +58,11 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         }
     }
 
-    public async Task CreateNewProjectAsync(User getUser)
-    {
-        Console.WriteLine("Create project");
-        Console.Write("Please, write name of project.\nName: ");
-        string projectName = Console.ReadLine()!;
-
-        string projectDescription;
-        Console.WriteLine("Optionally add a description to the project.\nPress 'Enter' to add");
-        ConsoleKeyInfo keyInfo = Console.ReadKey();
-
-        if (keyInfo.Key == ConsoleKey.Enter)
-            projectDescription = Console.ReadLine()!;
-        else
-            projectDescription = "empty";
-
-        Console.Write("Enter a due date for the project.\nDue date (dd.MM.yyyy): ");
-        string[] date = Console.ReadLine()!.Split('.');
-        DateTime enteredDate = new DateTime(int.Parse(date[2]), int.Parse(date[1]), int.Parse(date[0]));
-
-        await _testerManager.DisplayAllTester();
-        Console.Write("\nWrite the username of the person who will be the tester for this project.\nTester: ");
-        string testerName = Console.ReadLine()!;
-
-        var tester = await _testerManager.GetTesterByName(testerName);
-
-        await CreateAsync(new Project
-        {
-            Name = projectName,
-            Description = projectDescription,
-            Progress = Progress.Planned,
-            StakeHolder = getUser,
-            DueDates = enteredDate,
-            Tester = tester
-        });
-    }
-
     public async Task ChooseProjectToAddTasks(User stakeHolder)
     {
         await DisplayProjectAsync(stakeHolder);
 
-        Console.Write($"\nEnter name of project you want to add tasks.\nName: ");
+        Console.Write($"\nEnter name of project you want to add tasks.\nName of project: ");
         var projectName = Console.ReadLine();
 
         try
@@ -110,7 +72,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"This name does not exist. Exception: {ex}");
+            Console.WriteLine($"This name does not exist.");
         }
     }
 
@@ -190,6 +152,35 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
                 await UpdateAsync(project.Id, project);
             }
         }
+    }
+
+    public async Task DeleteTesterFromProjectsAsync(User tester)
+    {
+        var projects = await GetTesterProjects(tester);
+        
+        if (projects.Any())
+        {
+            foreach (var project in projects)
+            {
+                project.Tester = null!;
+                await UpdateAsync(project.Id, project);
+            }
+        }
+    }
+
+    public async Task<List<Project>> GetTesterProjects(User tester)
+    {
+        try
+        {
+            var projects = await Service.GetProjectByTester(tester);
+            return projects;
+        }
+        catch
+        {
+            Console.WriteLine($"Task list is empty.");
+        }
+
+        return null!;
     }
 
     public async Task DeleteProjectAsync(string projectName)

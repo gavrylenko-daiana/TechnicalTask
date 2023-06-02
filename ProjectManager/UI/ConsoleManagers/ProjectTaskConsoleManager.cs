@@ -163,11 +163,11 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
         return null!;
     }
 
-    public async Task<List<ProjectTask>> GetTesterTasks(User developer)
+    public async Task<List<ProjectTask>> GetTesterTasks(User tester)
     {
         try
         {
-            var tasks = await Service.GetWaitTasksByTester(developer);
+            var tasks = await Service.GetTasksByTester(tester);
             return tasks;
         }
         catch
@@ -190,8 +190,10 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
         }
     }
 
-    public async Task DeleteTesterFromTasksAsync(List<ProjectTask> tasks)
+    public async Task DeleteTesterFromTasksAsync(User tester)
     {
+        var tasks = await GetTesterTasks(tester);
+        
         if (tasks.Any())
         {
             foreach (var task in tasks)
@@ -200,6 +202,13 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
                 await UpdateAsync(task.Id, task);
             }
         }
+    }
+
+    public async Task<List<ProjectTask>> GetWaitTasksByTesterAsync(User tester)
+    {
+        var tasks = await Service.GetWaitTasksByTester(tester);
+
+        return tasks;
     }
 
     public async Task<List<ProjectTask>> GetTesterTasksAsync(User tester)

@@ -38,6 +38,13 @@ public class ProjectService : GenericService<Project>, IProjectService
         return projects;
     }
 
+    public async Task<List<Project>> GetProjectByTester(User tester)
+    {
+        var projects = (await GetAll()).Where(p => p.Tester != null && p.Tester.Id == tester.Id).ToList();
+
+        return projects;
+    }
+
     public async Task<Project> GetProjectByTask(ProjectTask task)
     {
         var project = await GetByPredicate(p => p.Tasks.Any(t => t.Id == task.Id));
