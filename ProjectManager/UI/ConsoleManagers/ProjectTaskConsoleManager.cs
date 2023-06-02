@@ -55,7 +55,7 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
                 Priority = priority,
                 Tester = project.Tester
             };
-
+ 
             await CreateAsync(item);
 
             tasks.Add(item);

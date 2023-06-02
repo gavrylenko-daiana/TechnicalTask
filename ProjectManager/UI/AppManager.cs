@@ -1,5 +1,3 @@
-using BLL.Services;
-using Core.Models;
 using UI.ConsoleManagers;
 
 namespace UI;

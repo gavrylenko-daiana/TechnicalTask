@@ -1,7 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Linq;
-using Core.Models;
 using UI.ConsoleManagers;
 using UI.Interfaces;
 

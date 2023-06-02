@@ -194,7 +194,7 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
     public async Task DeleteDeveloperAsync(User developer)
     {
         Console.WriteLine("Are you sure? 1 - Yes, 2 - No");
-        int choice = int.Parse(Console.ReadLine()!);
+        int choice = int.Parse(Console.ReadLine()!);    
 
         if (choice == 1)
         {
