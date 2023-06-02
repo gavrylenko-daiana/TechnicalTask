@@ -116,12 +116,7 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
             throw new ArgumentException("You entered the wrong code.");
         }
     }
-
-    public async Task SendMessageEmailUser(string email, string messageEmail)
-    {
-        await Service.SendMessageEmailUserAsync(email, messageEmail);
-    }
-
+    
     public async Task DeleteUserAsync(User user)
     {
         Console.WriteLine("Are you sure? 1 - Yes, 2 - No");
@@ -132,6 +127,11 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
             await DeleteAsync(user.Id);
             Console.WriteLine("The user was successfully deleted");
         }
+    }
+
+    public async Task SendMessageEmailUser(string email, string messageEmail)
+    {
+        await Service.SendMessageEmailUserAsync(email, messageEmail);
     }
 
     public async Task<User> AuthenticateUser(string userInput, string password)
