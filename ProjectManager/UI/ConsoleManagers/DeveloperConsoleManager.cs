@@ -59,7 +59,7 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
             {
                 await _projectManager.DisplayAllProjectsAsync();
             }
-            catch (Exception ex)
+            catch
             {
                 Console.WriteLine("Failed to display projects");
             }

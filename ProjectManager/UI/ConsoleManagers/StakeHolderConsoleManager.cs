@@ -117,7 +117,7 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
                       $"Your email: {stakeHolder.Email}\n");
 
         Console.Write("\nYour project(s):");
-        await _projectManager.DisplayProjectAsync(stakeHolder);
+        await _projectManager.DisplayProjectsAsync(stakeHolder);
     }
 
     public async Task CheckApprovedTasksAsync(User stakeHolder)
@@ -132,7 +132,7 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
 
     public async Task DeleteOneProjectAsync(User stakeHolder)
     {
-        await _projectManager.DisplayProjectAsync(stakeHolder);
+        await _projectManager.DisplayProjectsAsync(stakeHolder);
 
         Console.WriteLine($"\nEnter the name of project you want to delete:\nName: ");
         var projectName = Console.ReadLine()!;
@@ -244,7 +244,6 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
         {
             Name = projectName,
             Description = projectDescription,
-            Progress = Progress.Planned,
             StakeHolder = stakeHolder,
             DueDates = enteredDate,
             Tester = tester

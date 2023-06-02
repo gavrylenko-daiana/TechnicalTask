@@ -15,5 +15,5 @@ public class Project : BaseEntity
     public User Tester { get; set; }
     public List<ProjectTask> Tasks { get; set; }
     // public IDictionary<User, List<ProjectTask>> ClaimTaskDeveloper = new Dictionary<User, List<ProjectTask>>();
-    public Progress Progress { get; set; }
+    // public Progress Progress { get; set; }
 }
