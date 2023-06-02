@@ -98,23 +98,31 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
         await UpdateAsync(getUser.Id, getUser);
     }
 
-    private async Task ForgotUserPassword(User getUser)
+    public async Task ForgotUserPassword(User getUser)
     {
-        int emailCode = await Service.SendCodeToUser(getUser.Email);
-
-        Console.WriteLine("Write the four-digit number that came to your email:");
-        int userCode = int.Parse(Console.ReadLine()!);
-
-        if (userCode == emailCode)
+        try
         {
-            Console.Write("Enter your new password.\nNew Password: ");
-            string newUserPassword = Console.ReadLine()!;
+            int emailCode = await Service.SendCodeToUser(getUser.Email);
 
-            await Service.UpdatePassword(getUser.Id, newUserPassword);
+            Console.WriteLine("Write the four-digit number that came to your email:");
+            int userCode = int.Parse(Console.ReadLine()!);
+
+            if (userCode == emailCode)
+            {
+                Console.Write("Enter your new password.\nNew Password: ");
+                string newUserPassword = Console.ReadLine()!;
+
+                await Service.UpdatePassword(getUser.Id, newUserPassword);
+                Console.WriteLine("Your password was successfully edit.");
+            }
+            else
+            {
+                Console.WriteLine("You entered the wrong code.");
+            }
         }
-        else
+        catch
         {
-            throw new ArgumentException("You entered the wrong code.");
+            Console.WriteLine($"You got an error!");
         }
     }
     
@@ -138,6 +146,13 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
     public async Task<User> AuthenticateUser(string userInput, string password)
     {
         User getUser = await Service.Authenticate(userInput, password);
+
+        return getUser;
+    }
+
+    public async Task<User> GetUserByUsernameOrEmailAsync(string input)
+    {
+        var getUser = await Service.GetUserByUsernameOrEmail(input);
 
         return getUser;
     }
