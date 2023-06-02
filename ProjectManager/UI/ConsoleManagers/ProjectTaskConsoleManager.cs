@@ -31,6 +31,17 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
             string[] date = Console.ReadLine()!.Split('.');
             DateTime enteredDate = new DateTime(int.Parse(date[2]), int.Parse(date[1]), int.Parse(date[0]));
 
+            Console.Write("Enter a due time for the task (hh:mm): ");
+            string[] time = Console.ReadLine()!.Split(':');
+            enteredDate = enteredDate.AddHours(int.Parse(time[0]));
+            enteredDate = enteredDate.AddMinutes(int.Parse(time[1]));
+
+            DateTime now = DateTime.Now;
+            if (enteredDate < now)
+            {
+                enteredDate = now.AddDays(1);
+            }
+
             DateTime term = enteredDate <= project.DueDates.Date
                 ? enteredDate
                 : project.DueDates.Date;
@@ -39,21 +50,7 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
             Console.WriteLine("Select task priority: \n1) Urgent; 2) High; 3) Medium; 4) Low; 5) Minor;");
             int choice = int.Parse(Console.ReadLine()!);
 
-            try
-            {
-                priority = choice switch
-                {
-                    1 => Priority.Urgent,
-                    2 => Priority.High,
-                    3 => Priority.Medium,
-                    4 => Priority.Low,
-                    5 => Priority.Minor,
-                };
-            }
-            catch
-            {
-                Console.WriteLine("Such a type of priority does not exist!");
-            }
+            priority = await Service.GetPriority(choice, priority);
 
             var item = new ProjectTask
             {
@@ -120,6 +117,7 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
 
     public async Task UpdateTaskAsync(ProjectTask task)
     {
+        //update
         await UpdateAsync(task.Id, task);
     }
 
