@@ -8,15 +8,42 @@ namespace UI.ConsoleManagers;
 public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, IConsoleManager<Project>
 {
     private readonly ProjectTaskConsoleManager _projectTaskManager;
+    private readonly UserConsoleManager _userManager;
 
-    public ProjectConsoleManager(IProjectService service, ProjectTaskConsoleManager projectTaskManager) : base(service)
+    public ProjectConsoleManager(IProjectService service, ProjectTaskConsoleManager projectTaskManager,
+        UserConsoleManager userManager) : base(service)
     {
         _projectTaskManager = projectTaskManager;
+        _userManager = userManager;
     }
 
-    public async Task DisplayProjectAsync(User user)
+    public async Task DisplayProjectAsync(Project project)
+    {
+        Console.WriteLine($"\nName: {project.Name}");
+
+        if (!string.IsNullOrWhiteSpace(project.Description))
+            Console.WriteLine($"Description: {project.Description}");
+
+        Console.WriteLine($"Stake Holder: {project.StakeHolder.Username} with email: {project.StakeHolder.Email}");
+        Console.WriteLine($"Tester: {project.Tester.Username} with email: {project.Tester.Email}");
+        Console.WriteLine($"Number of all tasks: {project.CountAllTasks}");
+        Console.WriteLine($"Number of done tasks: {project.CountDoneTasks}");
+        Console.WriteLine($"DueDates: {project.DueDates}");
+
+        if (project.Tasks != null && project.Tasks.Count > 0)
+        {
+            Console.WriteLine($"\nTask(s):");
+            foreach (var task in project.Tasks)
+            {
+                await _projectTaskManager.DisplayTaskAsync(task);
+            }
+        }
+    }
+
+    public async Task DisplayProjectsAsync(User user)
     {
         IEnumerable<Project> projects = await Service.GetProjectsByStakeHolder(user);
+        
         if (!projects.Any())
         {
             Console.WriteLine("Project list is empty");
@@ -25,26 +52,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
 
         foreach (var project in projects)
         {
-            Console.WriteLine($"\nName: {project.Name}");
-
-            if (!string.IsNullOrWhiteSpace(project.Description))
-                Console.WriteLine($"Description: {project.Description}");
-
-            Console.WriteLine($"Stake Holder: {project.StakeHolder.Username} with email: {project.StakeHolder.Email}");
-            Console.WriteLine($"Tester: {project.Tester.Username} with email: {project.Tester.Email}");
-            Console.WriteLine($"Number of all tasks: {project.CountAllTasks}");
-            Console.WriteLine($"Number of done tasks: {project.CountDoneTasks}");
-            Console.WriteLine($"DueDates: {project.DueDates}");
-            Console.WriteLine($"Status: {project.Progress}");
-
-            if (project.Tasks != null && project.Tasks.Count > 0)
-            {
-                Console.WriteLine($"\nTask(s):");
-                foreach (var task in project.Tasks)
-                {
-                    await _projectTaskManager.DisplayTaskAsync(task);
-                }
-            }
+            await DisplayProjectAsync(project);
         }
     }
 
@@ -54,13 +62,13 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
 
         foreach (var project in projects)
         {
-            await DisplayProjectAsync(project.StakeHolder);
+            await DisplayProjectsAsync(project.StakeHolder);
         }
     }
 
     public async Task ChooseProjectToAddTasks(User stakeHolder)
     {
-        await DisplayProjectAsync(stakeHolder);
+        await DisplayProjectsAsync(stakeHolder);
 
         Console.Write($"\nEnter name of project you want to add tasks.\nName of project: ");
         var projectName = Console.ReadLine();
@@ -96,15 +104,68 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
 
         foreach (var project in projects)
         {
-            int approveTasks = await _projectTaskManager.GetApproveTasksAsync(project);
-            project.CountDoneTasks += approveTasks;
-            await UpdateAsync(project.Id, project);
+            Console.WriteLine($"{project.Name} has {project.CountDoneTasks} approve task " +
+                              $"out of {project.CountAllTasks}.");
+
+            if (project.CountDoneTasks == project.CountAllTasks)
+            {
+                await DisplayProjectAsync(project);
+                Console.WriteLine("Do you want to approve this project?\nEnter 1 - Yes, 2 - No");
+                int choice = int.Parse(Console.ReadLine()!);
+
+                if (choice == 1)
+                {
+                    for (int i = 0; i < project.Tasks.Count; i++)
+                    {
+                        project.Tasks[i].Progress = Progress.CompletedStakeHolder;
+                        await _projectTaskManager.UpdateAsync(project.Tasks[i].Id, project.Tasks[i]);
+                    }
+                    
+                    await UpdateAsync(project.Id, project);
+                    //удалять проект?
+                }
+                else if (choice == 2)
+                {
+                    for (int i = 0; i < project.Tasks.Count; i++)
+                    {
+                        project.Tasks[i].Progress = Progress.WaitingTester;
+                        project.CountDoneTasks -= 1;
+                        await _projectTaskManager.UpdateAsync(project.Tasks[i].Id, project.Tasks[i]);
+                    }
+                    
+                    await UpdateAsync(project.Id, project);
+                    
+                    Console.WriteLine("Select the reason for rejection:\n" +
+                                      "1. Expired due date\n" +
+                                      "2. Need to fix");
+                    int option = int.Parse(Console.ReadLine()!);
+
+                    if (option == 1)
+                    {
+                        await _userManager.SendMessageEmailUser(project.Tester.Email,
+                            $"The task with the name {project.Name} and the deadline of {project.DueDates} has expired.\nThe message was sent from the Stake Holder - {project.StakeHolder.Username}.");
+                    }
+                    else if (option == 2)
+                    {
+                        await _userManager.SendMessageEmailUser(project.Tester.Email,
+                            $"The task with the name {project.Name} needs to be fixed.\nThe message was sent from the Stake Holder - {project.StakeHolder.Username}.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid operation number.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Invalid operation number.");
+                }
+            }
         }
     }
 
     public async Task UpdateProjectAsync(User stakeHolder)
     {
-        await DisplayProjectAsync(stakeHolder);
+        await DisplayProjectsAsync(stakeHolder);
 
         Console.Write($"\nEnter name of project you want to update.\nName: ");
         var projectName = Console.ReadLine()!;
@@ -157,7 +218,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
     public async Task DeleteTesterFromProjectsAsync(User tester)
     {
         var projects = await GetTesterProjects(tester);
-        
+
         if (projects.Any())
         {
             foreach (var project in projects)
@@ -225,7 +286,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
     public async Task DeleteCurrentTaskAsync(ProjectTask task)
     {
         var project = await Service.GetProjectByTask(task);
-        
+
         if (project != null && project.Tasks.Any())
         {
             project.Tasks.RemoveAll(x => x.Id == task.Id);

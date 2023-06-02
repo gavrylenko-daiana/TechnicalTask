@@ -13,7 +13,8 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
     private readonly ProjectTaskConsoleManager _projectTaskManager;
     private readonly ProjectConsoleManager _projectManager;
 
-    public TesterConsoleManager(ITesterService service, UserConsoleManager userManager, ProjectTaskConsoleManager projectTaskManager, ProjectConsoleManager projectManager) : base(service)
+    public TesterConsoleManager(ITesterService service, UserConsoleManager userManager,
+        ProjectTaskConsoleManager projectTaskManager, ProjectConsoleManager projectManager) : base(service)
     {
         _userManager = userManager;
         _projectTaskManager = projectTaskManager;
@@ -89,6 +90,7 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
         try
         {
             var tasks = await _projectTaskManager.GetTesterTasksAsync(tester);
+            
             if (!tasks.Any())
             {
                 Console.WriteLine("No tasks to check.");
@@ -109,7 +111,7 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
 
                 while (true)
                 {
-                     Console.WriteLine("Do you want to approve this task?\nEnter 1 - Yes, 2 - No");
+                    Console.WriteLine("Do you want to approve this task?\nEnter 1 - Yes, 2 - No");
                     int choice = int.Parse(Console.ReadLine()!);
 
                     if (choice == 1)
@@ -119,7 +121,7 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
 
                         var project = await _projectManager.GetProjectByTaskAsync(task);
                         project.CountDoneTasks += 1;
-                        project.Tasks.First(t => t.Id == task.Id).Progress = task.Progress; //
+                        project.Tasks.First(t => t.Id == task.Id).Progress = task.Progress; 
 
                         await _projectManager.UpdateAsync(project.Id, project);
 
@@ -127,6 +129,14 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
                     }
                     else if (choice == 2)
                     {
+                        task.Progress = Progress.InProgress;
+                        var project = await _projectManager.GetProjectByTaskAsync(task);
+                        project.CountDoneTasks -= 1;
+                        project.Tasks.First(t => t.Id == task.Id).Progress = task.Progress; 
+                        
+                        await _projectTaskManager.UpdateAsync(task.Id, task);
+                        await _projectManager.UpdateAsync(project.Id, project);
+                        
                         Console.WriteLine("Select the reason for rejection:\n" +
                                           "1. Expired due date\n" +
                                           "2. Need to fix");
