@@ -28,7 +28,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         Console.WriteLine($"Tester: {project.Tester.Username} with email: {project.Tester.Email}");
         Console.WriteLine($"Number of all tasks: {project.CountAllTasks}");
         Console.WriteLine($"Number of done tasks: {project.CountDoneTasks}");
-        Console.WriteLine($"DueDates: {project.DueDates}");
+        Console.WriteLine($"DueDates: {project.DueDates.Date}");
 
         if (project.Tasks != null && project.Tasks.Count > 0)
         {
@@ -107,7 +107,9 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
             Console.WriteLine($"{project.Name} has {project.CountDoneTasks} approve task " +
                               $"out of {project.CountAllTasks}.");
 
-            if (project.CountDoneTasks == project.CountAllTasks)
+            var tasks = project.Tasks.Where(t => t.Progress == Progress.CompletedStakeHolder);
+            
+            if (project.CountDoneTasks == project.CountAllTasks && !tasks.Any())
             {
                 await DisplayProjectAsync(project);
                 Console.WriteLine("Do you want to approve this project?\nEnter 1 - Yes, 2 - No");
@@ -122,7 +124,6 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
                     }
                     
                     await UpdateAsync(project.Id, project);
-                    //удалять проект?
                 }
                 else if (choice == 2)
                 {
@@ -247,6 +248,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
     public async Task DeleteProjectAsync(string projectName)
     {
         var project = await Service.GetProjectByName(projectName);
+        await _projectTaskManager.DeleteTasksWithProject(project);
         await DeleteAsync(project.Id);
     }
 
