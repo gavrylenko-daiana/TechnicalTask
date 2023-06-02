@@ -19,6 +19,11 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
     public async Task DisplayProjectAsync(User user)
     {
         IEnumerable<Project> projects = await Service.GetProjectsByStakeHolder(user);
+        if (projects == null)
+        {
+            Console.WriteLine("Project list is empty");
+            return;
+        }
 
         foreach (var project in projects)
         {
