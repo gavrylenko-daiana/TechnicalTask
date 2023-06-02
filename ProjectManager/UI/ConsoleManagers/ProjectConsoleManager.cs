@@ -67,7 +67,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
     }
 
     public async Task ChooseProjectToAddTasks(User stakeHolder)
-    {
+    { 
         await DisplayProjectsAsync(stakeHolder);
 
         Console.Write($"\nEnter name of project you want to add tasks.\nName of project: ");
@@ -86,7 +86,8 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
 
     private async Task CreateTaskForProject(Project project)
     {
-        project.Tasks = await _projectTaskManager.CreateTaskAsync(project);
+        var tasks = await _projectTaskManager.CreateTaskAsync(project);
+        project.Tasks.AddRange(tasks);
         project.CountAllTasks = project.Tasks.Count;
 
         await UpdateAsync(project.Id, project);
