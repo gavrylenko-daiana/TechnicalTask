@@ -229,6 +229,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
     public async Task DeleteCurrentTaskAsync(ProjectTask task)
     {
         var project = await Service.GetProjectByTask(task);
+        
         if (project != null && project.Tasks.Any())
         {
             project.Tasks.RemoveAll(x => x.Id == task.Id);
@@ -236,13 +237,25 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
             await UpdateAsync(project.Id, project);
             await _projectTaskManager.DeleteTaskAsync(task);
         }
-
-        Console.WriteLine($"Error");
+        else
+        {
+            Console.WriteLine($"Failed to get project");
+        }
     }
 
     public async Task UpdateTasksAsync(ProjectTask task)
     {
-        await _projectTaskManager.UpdateTaskAsync(task);
+        var project = await Service.GetProjectByTask(task);
+
+        if (project != null && project.Tasks.Any())
+        {
+            await _projectTaskManager.UpdateTaskAsync(task);
+            await UpdateAsync(project.Id, project);
+        }
+        else
+        {
+            Console.WriteLine($"Failed to get project");
+        }
     }
 
     public async Task DisplayOneTaskAsync(ProjectTask task)

@@ -30,6 +30,8 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
 
         while (true)
         {
+            Console.ReadKey();
+            Console.Clear();
             Console.WriteLine("\nUser operations:");
             Console.WriteLine("1. Display info about you");
             Console.WriteLine("2. Update your information");

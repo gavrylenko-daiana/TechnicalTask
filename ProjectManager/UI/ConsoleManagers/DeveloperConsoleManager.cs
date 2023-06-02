@@ -32,6 +32,8 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
 
         while (true)
         {
+            Console.ReadKey();
+            Console.Clear();
             Console.WriteLine("\nUser operations:");
             Console.WriteLine("1. Display information about you");
             Console.WriteLine("2. Update your information");

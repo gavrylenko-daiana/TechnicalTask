@@ -38,7 +38,9 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
 
         while (true)
         {
-            Console.WriteLine("\nUser operations:");
+            Console.ReadKey();
+            Console.Clear();
+            Console.WriteLine("User operations:");
             Console.WriteLine("1. Display info about you and your projects");
             Console.WriteLine("2. Create new project");
             Console.WriteLine("3. Create tasks for project");
@@ -169,7 +171,7 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
             foreach (var task in tasks)
             {
                 await _projectManager.DisplayOneTaskAsync(task);
-                Console.WriteLine("\nAre you want update this task?\n1 - Yes, 2 - No");
+                Console.WriteLine("\nAre you want to update this task?\n1 - Yes, 2 - No");
                 var option = int.Parse(Console.ReadLine()!);
 
                 if (option == 1)
