@@ -115,7 +115,7 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
     {
         Console.Write($"\nYour username: {stakeHolder.Username}\n" +
                       $"Your email: {stakeHolder.Email}\n");
-
+        
         Console.Write("\nYour project(s):");
         await _projectManager.DisplayProjectsAsync(stakeHolder);
     }

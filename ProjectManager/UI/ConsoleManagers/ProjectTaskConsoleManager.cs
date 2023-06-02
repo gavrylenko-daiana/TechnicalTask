@@ -31,11 +31,6 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
             string[] date = Console.ReadLine()!.Split('.');
             DateTime enteredDate = new DateTime(int.Parse(date[2]), int.Parse(date[1]), int.Parse(date[0]));
 
-            Console.Write("Enter a due time for the task (hh:mm): ");
-            string[] time = Console.ReadLine()!.Split(':');
-            enteredDate = enteredDate.AddHours(int.Parse(time[0]));
-            enteredDate = enteredDate.AddMinutes(int.Parse(time[1]));
-
             DateTime now = DateTime.Now;
             if (enteredDate < now)
             {
@@ -72,13 +67,6 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
         return tasks;
     }
 
-    // public async Task<ProjectTask> GetTaskAfterCreating()
-    // {
-    //     ProjectTask tasks = await Service.GetTaskAfterCreating();
-    //     
-    //     return tasks;
-    // }
-
     public async Task DeleteTasksWithProject(Project project)
     {
         foreach (var task in project.Tasks)
@@ -92,13 +80,6 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
         await DeleteAsync(task.Id);
     }
 
-    // public async Task<List<ProjectTask>> GetTasksByProject(Project project)
-    // {
-    //     List<ProjectTask> tasks = await Service.GetTasksByProject(project);
-    //
-    //     return tasks;
-    // }
-
     public async Task DisplayTaskAsync(ProjectTask task)
     {
         Console.WriteLine($"\nName: {task.Name}");
@@ -111,7 +92,7 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
 
         Console.WriteLine($"Tester: {task.Tester.Username}");
         Console.WriteLine($"Priority: {task.Priority}");
-        Console.WriteLine($"DueDates: {task.DueDates}");
+        Console.WriteLine($"DueDates: {task.DueDates.Date}");
         Console.WriteLine($"Status: {task.Progress}\n");
     }
 
@@ -128,25 +109,6 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
             await DisplayTaskAsync(task);
         }
     }
-
-    // public async Task<int> GetApproveTasksAsync(Project project)
-    // {
-    //     int countApproveTasks = 0;
-    //
-    //     var approveTasks = await Service.GetApproveTasks(project);
-    //
-    //     if (approveTasks.Any())
-    //     {
-    //         countApproveTasks += approveTasks.Count;
-    //         Console.WriteLine($"{project.Name} has {approveTasks.Count} approve task:");
-    //         foreach (var task in approveTasks)
-    //         {
-    //             Console.WriteLine($"- {task}");
-    //         }
-    //     }
-    //
-    //     return countApproveTasks;
-    // }
 
     public async Task<List<ProjectTask>> GetDeveloperTasks(User developer)
     {

@@ -11,13 +11,6 @@ public class ProjectTaskService : GenericService<ProjectTask>, IProjectTaskServi
     {
     }
 
-    // public async Task<List<ProjectTask>> GetTasksByProject(Project project)
-    // {
-    //     var tasks = project.Tasks.All(tasks).ToList();
-    //
-    //     return tasks;
-    // }
-
     public async Task<List<ProjectTask>> GetTasksByDeveloper(User developer)
     {
         var tasks = (await GetAll()).Where(t => t.Developer != null && t.Developer.Id == developer.Id).ToList();
@@ -69,11 +62,4 @@ public class ProjectTaskService : GenericService<ProjectTask>, IProjectTaskServi
             return 0;
         }
     }
-
-    // public async Task<ProjectTask> GetTaskAfterCreating()
-    // {
-    //     ProjectTask task = (await GetAll()).LastOrDefault()!;
-    //
-    //     return task;
-    // }
 }

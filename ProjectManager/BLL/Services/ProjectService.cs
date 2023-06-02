@@ -11,17 +11,6 @@ public class ProjectService : GenericService<Project>, IProjectService
     {
     }
 
-    // public async Task<List<User>?> GetDevelopersByProject(Project project)
-    // {
-    //     var getDevelopers = project.ClaimTaskDeveloper.Keys
-    //         .Where(u => u.Role == UserRole.Developer).ToList();
-    //
-    //     if (getDevelopers == null)
-    //         throw new NullReferenceException("Developers is not responsible for this project");
-    //     
-    //     return getDevelopers;
-    // }
-
     public async Task<Project> GetProjectByName(string projectName)
     {
         Project project = await GetByPredicate(p => p.Name == projectName);
