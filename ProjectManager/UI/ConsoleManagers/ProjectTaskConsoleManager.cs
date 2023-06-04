@@ -102,11 +102,41 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
         await UpdateAsync(task.Id, task);
     }
 
+    public async Task AddFileFromUserAsync(string path, ProjectTask projectTask)
+    {
+        await Service.AddFileToDirectory(path, projectTask);
+    }
+
     public async Task DisplayAllTaskByProject(List<ProjectTask> tasks)
     {
-        foreach (var task in tasks)
+        if (tasks.Any())
         {
-            await DisplayTaskAsync(task);
+            foreach (var task in tasks)
+            {
+                await DisplayTaskAsync(task);
+            }
+        }
+        else
+        {
+            Console.WriteLine("Tasks list is empty");
+        }
+    }
+
+    public async Task DisplayAllTasks()
+    {
+        var tasks = await GetAllAsync();
+        var projectTasks = tasks.ToList();
+        
+        if (projectTasks.Any())
+        {
+            foreach (var task in projectTasks)
+            {
+                await DisplayTaskAsync(task);
+            }
+        }
+        else
+        {
+            throw new Exception("Tasks list is empty");
         }
     }
 
@@ -183,5 +213,13 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
     public override Task PerformOperationsAsync(User user)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<ProjectTask> GetTaskByNameAsync(string taskName)
+    {
+        var task = await Service.GetTaskByName(taskName);
+        if (task == null) throw new ArgumentNullException(nameof(task));
+
+        return task;
     }
 }
