@@ -55,7 +55,7 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
                 Priority = priority,
                 Tester = project.Tester
             };
- 
+
             await CreateAsync(item);
 
             tasks.Add(item);
@@ -96,10 +96,57 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
         Console.WriteLine($"Status: {task.Progress}\n");
     }
 
-    public async Task UpdateTaskAsync(ProjectTask task)
+    public async Task UpdateTaskAsync(Project project)
     {
-        //update
-        await UpdateAsync(task.Id, task);
+        var tasks = project.Tasks;
+        
+        foreach (var task in tasks)
+        {
+            Console.WriteLine($"Are you want to update {task.Name}?\nEnter '1' - Yes, '2' - No");
+            var option = int.Parse(Console.ReadLine()!);
+        
+            if (option == 1)
+            {
+                while (true)
+                {
+                    Console.WriteLine("\nSelect which information you want to change: ");
+                    Console.WriteLine("1. Name");
+                    Console.WriteLine("2. Description");
+                    Console.WriteLine("3. Due date");
+                    Console.WriteLine("4. Exit");
+
+                    Console.Write("Enter the operation number: ");
+                    string input = Console.ReadLine()!;
+
+                    switch (input)
+                    {
+                        case "1":
+                            Console.Write("Please, edit name.\nName: ");
+                            task.Name = Console.ReadLine()!;
+                            Console.WriteLine("Name was successfully edited");
+                            break;
+                        case "2":
+                            Console.Write("Please, edit description.\nDescription: ");
+                            task.Description = Console.ReadLine()!;
+                            Console.WriteLine("Description was successfully edited");
+                            break;
+                        case "3":
+                            Console.Write("Please, edit a due date for the task.\nDue date (dd.MM.yyyy): ");
+                            string[] date = Console.ReadLine()!.Split('.');
+                            task.DueDates = new DateTime(int.Parse(date[2]), int.Parse(date[1]), int.Parse(date[0]));
+                            Console.WriteLine("Due date was successfully edited");
+                            break;
+                        case "4":
+                            return;
+                        default:
+                            Console.WriteLine("Invalid operation number.");
+                            break;
+                    }
+
+                    await UpdateAsync(task.Id, task);
+                }
+            }
+        }
     }
 
     public async Task AddFileFromUserAsync(string path, ProjectTask projectTask)
@@ -126,7 +173,7 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
     {
         var tasks = await GetAllAsync();
         var projectTasks = tasks.ToList();
-        
+
         if (projectTasks.Any())
         {
             foreach (var task in projectTasks)
@@ -185,7 +232,7 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
     public async Task DeleteTesterFromTasksAsync(User tester)
     {
         var tasks = await GetTesterTasks(tester);
-        
+
         if (tasks.Any())
         {
             foreach (var task in tasks)
