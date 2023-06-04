@@ -10,8 +10,11 @@ namespace UI.ConsoleManagers;
 
 public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleManager<User>
 {
-    public UserConsoleManager(IUserService service) : base(service)
+    private readonly ProjectTaskConsoleManager _projectTaskManager;
+
+    public UserConsoleManager(IUserService service, ProjectTaskConsoleManager projectTaskManager) : base(service)
     {
+        _projectTaskManager = projectTaskManager;
     }
 
     public override async Task PerformOperationsAsync(User user)
@@ -39,6 +42,7 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
                 await actions[input](user);
                 break;
             }
+
             if (input == "3") break;
             if (actions.ContainsKey(input))
                 await actions[input](user);
@@ -58,7 +62,7 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
                               $"\nRole: {user.Role}");
         }
     }
-    
+
     public async Task UpdateUserPassword(User getUser)
     {
         string check = String.Empty;
@@ -103,7 +107,6 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
         try
         {
             int emailCode = await Service.SendCodeToUser(getUser.Email);
-
             Console.WriteLine("Write the four-digit number that came to your email:");
             int userCode = int.Parse(Console.ReadLine()!);
 
@@ -125,7 +128,7 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
             Console.WriteLine($"You got an error!");
         }
     }
-    
+
     public async Task DeleteUserAsync(User user)
     {
         Console.WriteLine("Are you sure? 1 - Yes, 2 - No");
@@ -155,5 +158,51 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
         var getUser = await Service.GetUserByUsernameOrEmail(input);
 
         return getUser;
+    }
+
+    public async Task<ProjectTask> AddFileToTaskAsync()
+    {
+        Console.WriteLine($"Write the path to your file.\nPath to your file:");
+        var path = Console.ReadLine();
+        
+        if (!string.IsNullOrWhiteSpace(path))
+        {
+            try
+            {
+                await _projectTaskManager.DisplayAllTasks();
+            }
+            catch
+            {
+                Console.WriteLine("Tasks list is empty");
+            }
+
+            Console.WriteLine("Select the task to which you want to attach your file.\nName of task:");
+            var nameOfTask = Console.ReadLine();
+
+            if (!string.IsNullOrWhiteSpace(nameOfTask))
+            {
+                try
+                {
+                    var projectTask = await _projectTaskManager.GetTaskByNameAsync(nameOfTask);
+                    await _projectTaskManager.AddFileFromUserAsync(path, projectTask);
+
+                    return projectTask;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            else
+            {
+                Console.WriteLine("You didn't enter anything");
+            }
+        }
+        else
+        {
+            Console.WriteLine("You didn't enter anything");
+        }
+
+        return null!;
     }
 }

@@ -5,9 +5,7 @@ using UI.Interfaces;
 
 namespace UI.ConsoleManagers;
 
-// надо сделать проверку что count выполненных таксов == count всех тасков, если да,
-// то ПРОЕКТ идет на проверку тестировщику, затем стекхолдеру,
-// а потом Если проходит, то Надо бы сделать список сделанных проектов, или же удалить
+// Добавить цветную консоль
 public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, User>, IConsoleManager<User>
 {
     private readonly UserConsoleManager _userConsoleManager;
@@ -29,13 +27,14 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
             { "1", DisplayInfoStakeHolderAndProjectAsync },
             { "2", CreateProjectAsync },
             { "3", CreateTaskToProjectAsync },
-            { "4", CheckApprovedTasksAsync },
-            { "5", UpdateStakeHolderAsync },
-            { "6", UpdateProjectAsync },
-            { "7", UpdateTaskAsync },
-            { "8", DeleteTasksAsync },
-            { "9", DeleteOneProjectAsync },
-            { "10", DeleteStakeHolderAsync },
+            { "4", AddFileToTask },
+            { "5", CheckApprovedTasksAsync },
+            { "6", UpdateStakeHolderAsync },
+            { "7", UpdateProjectAsync },
+            { "8", UpdateTaskAsync },
+            { "9", DeleteTasksAsync },
+            { "10", DeleteOneProjectAsync },
+            { "11", DeleteStakeHolderAsync },
         };
 
         while (true)
@@ -46,25 +45,26 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
             Console.WriteLine("1. Display info about you and your projects");
             Console.WriteLine("2. Create new project");
             Console.WriteLine("3. Create tasks for project");
-            Console.WriteLine("4. Check approved tasks");
-            Console.WriteLine("5. Update your information");
-            Console.WriteLine("6. Update your project");
-            Console.WriteLine("7. Update task from project");
-            Console.WriteLine("8. Delete task from project");
-            Console.WriteLine("9. Delete your project");
-            Console.WriteLine("10. Delete your account");
-            Console.WriteLine("11. Exit");
+            Console.WriteLine("4. Add file to task");
+            Console.WriteLine("5. Check approved tasks");
+            Console.WriteLine("6. Update your information");
+            Console.WriteLine("7. Update your project");
+            Console.WriteLine("8. Update task from project");
+            Console.WriteLine("9. Delete task from project");
+            Console.WriteLine("10. Delete your project");
+            Console.WriteLine("11. Delete your account");
+            Console.WriteLine("12. Exit");
 
             Console.Write("Enter the operation number: ");
             string input = Console.ReadLine()!;
 
-            if (input == "10")
+            if (input == "11")
             {
                 await actions[input](user);
                 break;
             }
 
-            if (input == "11") break;
+            if (input == "12") break;
             if (actions.ContainsKey(input)) await actions[input](user);
             else Console.WriteLine("Invalid operation number.");
         }
@@ -125,6 +125,13 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
         await _projectManager.CheckApproveTasksCountAsync(stakeHolder);
     }
 
+    public async Task AddFileToTask(User stakeHolder)
+    {
+        var task = await _userConsoleManager.AddFileToTaskAsync();
+        var project = await _projectManager.GetProjectByTaskAsync(task);
+        await _projectManager.UpdateAsync(project.Id, project);
+    }
+    
     public async Task UpdateProjectAsync(User stakeHolder)
     {
         await _projectManager.UpdateProjectAsync(stakeHolder);
@@ -234,7 +241,7 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
         string[] date = Console.ReadLine()!.Split('.');
         DateTime enteredDate = new DateTime(int.Parse(date[2]), int.Parse(date[1]), int.Parse(date[0]));
 
-        await _testerManager.DisplayAllTester();
+        await _testerManager.DisplayNameOfAllTester();
         Console.Write("\nWrite the username of the person who will be the tester for this project.\nTester: ");
         string testerName = Console.ReadLine()!;
 

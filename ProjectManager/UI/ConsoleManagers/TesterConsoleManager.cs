@@ -28,7 +28,8 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
             { "1", DisplayTesterAsync },
             { "2", UpdateTesterAsync },
             { "3", CheckTasksAsync },
-            { "4", DeleteTesterAsync }
+            { "4", AddFileToTask },
+            { "5", DeleteTesterAsync }
         };
 
         while (true)
@@ -39,8 +40,9 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
             Console.WriteLine("1. Display info about you");
             Console.WriteLine("2. Update your information");
             Console.WriteLine("3. Check tasks");
-            Console.WriteLine("4. Delete your account");
-            Console.WriteLine("5. Exit");
+            Console.WriteLine("4. Add file to task");
+            Console.WriteLine("5. Delete your account");
+            Console.WriteLine("6. Exit");
 
             Console.Write("Enter the operation number: ");
             string input = Console.ReadLine()!;
@@ -57,13 +59,19 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
         }
     }
 
-    public async Task DisplayAllTester()
+    public async Task DisplayNameOfAllTester()
     {
         IEnumerable<User> testers = await Service.GetAllTester();
+        
+        if (testers == null)
+        {
+            throw new Exception("No testers");
+        }
 
+        Console.WriteLine("\nList of testers:");
         foreach (var tester in testers)
         {
-            await DisplayTesterAsync(tester);
+            Console.WriteLine($"- {tester.Username}");
         }
     }
 
@@ -164,6 +172,13 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
         {
             Console.WriteLine("Tasks list is empty.");
         }
+    }
+    
+    public async Task AddFileToTask(User stakeHolder)
+    {
+        var task = await _userManager.AddFileToTaskAsync();
+        var project = await _projectManager.GetProjectByTaskAsync(task);
+        await _projectManager.UpdateAsync(project.Id, project);
     }
 
     public async Task UpdateTesterAsync(User tester)

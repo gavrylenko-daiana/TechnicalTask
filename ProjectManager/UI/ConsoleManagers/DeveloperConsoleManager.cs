@@ -27,7 +27,8 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
             { "2", UpdateDeveloperAsync },
             { "3", AssignTasksToDeveloperAsync },
             { "4", SendToSubmitByTesterAsync },
-            { "5", DeleteDeveloperAsync }
+            { "5", AddFileToTask },
+            { "6", DeleteDeveloperAsync }
         };
 
         while (true)
@@ -39,13 +40,20 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
             Console.WriteLine("2. Update your information");
             Console.WriteLine("3. Select tasks");
             Console.WriteLine("4. Submit a task for review");
-            Console.WriteLine("5. Delete your account");
-            Console.WriteLine("6. Exit");
+            Console.WriteLine("5. Add file to task");
+            Console.WriteLine("6. Delete your account");
+            Console.WriteLine("7. Exit");
 
             Console.Write("Enter the operation number: ");
             string input = Console.ReadLine()!;
+            
+            if (input == "6")
+            {
+                await actions[input](user);
+                break;
+            }
 
-            if (input == "6") break;
+            if (input == "7") break;
             if (actions.ContainsKey(input)) await actions[input](user);
             else Console.WriteLine("Invalid operation number.");
         }
@@ -189,6 +197,13 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
                     break;
             }
         }
+    }
+    
+    public async Task AddFileToTask(User stakeHolder)
+    {
+        var task = await _userConsoleManager.AddFileToTaskAsync();
+        var project = await _projectManager.GetProjectByTaskAsync(task);
+        await _projectManager.UpdateAsync(project.Id, project);
     }
     
     public async Task DeleteDeveloperAsync(User developer)
