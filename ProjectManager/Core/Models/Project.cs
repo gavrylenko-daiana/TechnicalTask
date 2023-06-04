@@ -11,5 +11,5 @@ public class Project : BaseEntity
     public DateTime DueDates { get; set; }
     public User StakeHolder { get; set; }
     public User Tester { get; set; }
-    public List<ProjectTask> Tasks { get; set; }
+    public List<ProjectTask> Tasks { get; set; } = new List<ProjectTask>();
 }

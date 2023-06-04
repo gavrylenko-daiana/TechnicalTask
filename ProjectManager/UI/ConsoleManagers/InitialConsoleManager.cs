@@ -99,17 +99,17 @@ public class InitialConsoleManager : ConsoleManager<IUserService, User>, IConsol
     private async Task<UserRole> SelectRoleUser()
     {
         UserRole role = UserRole.Developer;
-        Console.WriteLine("Enter role for user: \n1) User(Admin); 2) Developer; 3) Tester; 4) StakeHolder");
+        Console.WriteLine("Enter role for user: \n1) StakeHolder; 2) Developer; 3) Tester;");
         int choice = int.Parse(Console.ReadLine()!);
 
         try
         {
             role = choice switch
             {
-                1 => UserRole.User,
+                1 => UserRole.StakeHolder,
                 2 => UserRole.Developer,
                 3 => UserRole.Tester,
-                4 => UserRole.StakeHolder,
+                4 => UserRole.User,
             };
         }
         catch

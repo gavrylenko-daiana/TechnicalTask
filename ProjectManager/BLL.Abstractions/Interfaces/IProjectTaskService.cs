@@ -8,7 +8,7 @@ public interface IProjectTaskService : IGenericService<ProjectTask>
     // Task<List<ProjectTask>> GetTasksByProject(Project project);
 
     // Task<ProjectTask> GetTaskAfterCreating();
-
+    Task AddFileToDirectory(string sourceFilePath, ProjectTask projectTask);
     Task<List<ProjectTask>> GetTasksByDeveloper(User developer);
 
     Task<List<ProjectTask>> GetTasksByTester(User tester);
@@ -18,4 +18,6 @@ public interface IProjectTaskService : IGenericService<ProjectTask>
     Task<List<ProjectTask>> GetApproveTasks(Project project);
 
     Task<Priority> GetPriority(int choice, Priority priority);
+
+    Task<ProjectTask> GetTaskByName(string taskName);
 }
