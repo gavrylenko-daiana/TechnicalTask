@@ -5,6 +5,7 @@ namespace BLL.Abstractions.Interfaces;
 public interface IProjectService : IGenericService<Project>
 {
     // Task<List<User>?> GetDevelopersByProject(Project project);
+    Task<bool> ProjectIsAlreadyExist(string userInput);
 
     Task<Project> GetProjectByName(string projectName);
 

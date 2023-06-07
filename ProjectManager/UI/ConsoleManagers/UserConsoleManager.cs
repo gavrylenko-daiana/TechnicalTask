@@ -51,55 +51,71 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
         }
     }
 
-    public async Task DisplayAllUsersAsync(User u)
+    private async Task DisplayAllUsersAsync(User u)
     {
-        IEnumerable<User> users = await GetAllAsync();
-
-        foreach (var user in users)
+        try
         {
-            Console.WriteLine($"\nName: {user.Username}" +
-                              $"\nEmail: {user.Email}" +
-                              $"\nRole: {user.Role}");
+            IEnumerable<User> users = await GetAllAsync();
+
+            foreach (var user in users)
+            {
+                Console.WriteLine($"\nName: {user.Username}" +
+                                  $"\nEmail: {user.Email}" +
+                                  $"\nRole: {user.Role}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            throw;
         }
     }
 
     public async Task UpdateUserPassword(User getUser)
     {
-        string check = String.Empty;
-
-        while (check != "exit")
+        try
         {
-            Console.WriteLine("Write \n" +
-                              "'exit' if you don't want to change your password \n" +
-                              "'forgot' if you forgot your password.\n" +
-                              "Press 'Enter' for continue update your password.");
-            check = Console.ReadLine()!;
-            if (check == "exit") return;
-            if (check == "forgot")
+            string check = String.Empty;
+
+            while (check != "exit")
             {
-                await ForgotUserPassword(getUser);
-                break;
+                Console.WriteLine("Write \n" +
+                                  "'exit' if you don't want to change your password \n" +
+                                  "'forgot' if you forgot your password.\n" +
+                                  "Press 'Enter' for continue update your password.");
+                check = Console.ReadLine()!;
+                if (check == "exit") return;
+                if (check == "forgot")
+                {
+                    await ForgotUserPassword(getUser);
+                    break;
+                }
+
+                Console.Write("Enter you current password.\nYour password: ");
+                string password = Console.ReadLine()!;
+                password = Service.GetPasswordHash(password);
+
+                if (getUser.PasswordHash == password)
+                {
+                    Console.Write("Enter your new password.\nYour Password: ");
+                    string newUserPassword = Console.ReadLine()!;
+
+                    await Service.UpdatePassword(getUser.Id, newUserPassword);
+                    return;
+                }
+                else
+                {
+                    Console.WriteLine($"You entered the wrong password");
+                }
             }
 
-            Console.Write("Enter you current password.\nYour password: ");
-            string password = Console.ReadLine()!;
-            password = Service.GetPasswordHash(password);
-
-            if (getUser.PasswordHash == password)
-            {
-                Console.Write("Enter your new password.\nYour Password: ");
-                string newUserPassword = Console.ReadLine()!;
-
-                await Service.UpdatePassword(getUser.Id, newUserPassword);
-                return;
-            }
-            else
-            {
-                Console.WriteLine($"You entered the wrong password");
-            }
+            await UpdateAsync(getUser.Id, getUser);
         }
-
-        await UpdateAsync(getUser.Id, getUser);
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            throw;
+        }
     }
 
     public async Task ForgotUserPassword(User getUser)
@@ -129,21 +145,57 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
         }
     }
 
-    public async Task DeleteUserAsync(User user)
+    public async Task<bool> UserUniquenessCheck(string name)
     {
-        Console.WriteLine("Are you sure? 1 - Yes, 2 - No");
-        int choice = int.Parse(Console.ReadLine()!);
-
-        if (choice == 1)
+        try
         {
-            await DeleteAsync(user.Id);
-            Console.WriteLine("The user was successfully deleted");
+            if (await Service.UsernameIsAlreadyExist(name))
+            {
+                Console.WriteLine("This username or email is already taken!");
+
+                return false;
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            throw;
+        }
+
+        return true;
+    }
+
+    private async Task DeleteUserAsync(User user)
+    {
+        try
+        {
+            Console.WriteLine("Are you sure? 1 - Yes, 2 - No");
+            int choice = int.Parse(Console.ReadLine()!);
+
+            if (choice == 1)
+            {
+                await DeleteAsync(user.Id);
+                Console.WriteLine("The user was successfully deleted");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            throw;
         }
     }
 
     public async Task SendMessageEmailUser(string email, string messageEmail)
     {
-        await Service.SendMessageEmailUserAsync(email, messageEmail);
+        try
+        {
+            await Service.SendMessageEmailUserAsync(email, messageEmail);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw;
+        }
     }
 
     public async Task<User> AuthenticateUser(string userInput, string password)
@@ -155,54 +207,70 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
 
     public async Task<User> GetUserByUsernameOrEmailAsync(string input)
     {
-        var getUser = await Service.GetUserByUsernameOrEmail(input);
+        try
+        {
+            var getUser = await Service.GetUserByUsernameOrEmail(input);
 
-        return getUser;
+            return getUser;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw;
+        }
     }
 
     public async Task<ProjectTask> AddFileToTaskAsync()
     {
-        Console.WriteLine($"Write the path to your file.\nPath to your file:");
-        var path = Console.ReadLine();
-        
-        if (!string.IsNullOrWhiteSpace(path))
+        try
         {
-            try
-            {
-                await _projectTaskManager.DisplayAllTasks();
-            }
-            catch
-            {
-                Console.WriteLine("Tasks list is empty");
-            }
+            Console.WriteLine($"Write the path to your file.\nPath to your file:");
+            var path = Console.ReadLine();
 
-            Console.WriteLine("Select the task to which you want to attach your file.\nName of task:");
-            var nameOfTask = Console.ReadLine();
-
-            if (!string.IsNullOrWhiteSpace(nameOfTask))
+            if (!string.IsNullOrWhiteSpace(path))
             {
                 try
                 {
-                    var projectTask = await _projectTaskManager.GetTaskByNameAsync(nameOfTask);
-                    await _projectTaskManager.AddFileFromUserAsync(path, projectTask);
-
-                    return projectTask;
+                    await _projectTaskManager.DisplayAllTasks();
                 }
-                catch (Exception ex)
+                catch
                 {
-                    Console.WriteLine(ex.Message);
+                    Console.WriteLine("Tasks list is empty");
+                }
+
+                Console.WriteLine("Select the task to which you want to attach your file.\nName of task:");
+                var nameOfTask = Console.ReadLine();
+
+                if (!string.IsNullOrWhiteSpace(nameOfTask))
+                {
+                    try
+                    {
+                        var projectTask = await _projectTaskManager.GetTaskByNameAsync(nameOfTask);
+                        await _projectTaskManager.AddFileFromUserAsync(path, projectTask);
+
+                        return projectTask;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("You didn't enter anything");
                 }
             }
             else
             {
                 Console.WriteLine("You didn't enter anything");
             }
-        }
-        else
-        {
-            Console.WriteLine("You didn't enter anything");
-        }
 
-        return null!;
+            return null!;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw;
+        }
     }
 }

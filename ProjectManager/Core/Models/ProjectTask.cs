@@ -11,6 +11,5 @@ public class ProjectTask : BaseEntity
     public Progress Progress { get; set; }
     public User Developer { get; set; }
     public User Tester { get; set; }
-    
     public List<string> UploadedFiles { get; set; } = new List<string>();
 }

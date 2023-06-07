@@ -10,6 +10,15 @@ public class ProjectService : GenericService<Project>, IProjectService
     public ProjectService(IRepository<Project> repository) : base(repository)
     {
     }
+    
+    public async Task<bool> ProjectIsAlreadyExist(string userInput)
+    {
+        if (string.IsNullOrWhiteSpace(userInput)) throw new ArgumentNullException(nameof(userInput));
+        
+        var check = (await GetAll()).Any(p => p.Name == userInput);
+
+        return check;
+    }
 
     public async Task<Project> GetProjectByName(string projectName)
     {

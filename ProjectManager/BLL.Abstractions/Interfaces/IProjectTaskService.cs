@@ -20,4 +20,6 @@ public interface IProjectTaskService : IGenericService<ProjectTask>
     Task<Priority> GetPriority(int choice, Priority priority);
 
     Task<ProjectTask> GetTaskByName(string taskName);
+
+    Task<bool> ProjectTaskIsAlreadyExist(string userInput);
 }

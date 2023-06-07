@@ -68,166 +68,229 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
         }
     }
 
-    public async Task UpdateStakeHolderAsync(User stakeHolder)
+    private async Task UpdateStakeHolderAsync(User stakeHolder)
     {
-        await DisplayInfoStakeHolderAndProjectAsync(stakeHolder);
-
-        while (true)
+        try
         {
-            Console.WriteLine("\nSelect which information you want to change: ");
-            Console.WriteLine("1. Username");
-            Console.WriteLine("2. Password");
-            Console.WriteLine("3. Email");
-            Console.WriteLine("4. Exit");
+            await DisplayInfoStakeHolderAndProjectAsync(stakeHolder);
 
-            Console.Write("Enter the operation number: ");
-            string input = Console.ReadLine()!;
-
-            switch (input)
+            while (true)
             {
-                case "1":
-                    Console.Write("Please, edit your username.\nYour name: ");
-                    stakeHolder.Username = Console.ReadLine()!;
-                    Console.WriteLine("Username was successfully edited");
-                    break;
-                case "2":
-                    await _userConsoleManager.UpdateUserPassword(stakeHolder);
-                    break;
-                case "3":
-                    Console.Write("Please, edit your email.\nYour email: ");
-                    stakeHolder.Email = Console.ReadLine()!;
-                    Console.WriteLine("Your email was successfully edited");
-                    break;
-                case "4":
-                    return;
-                default:
-                    Console.WriteLine("Invalid operation number.");
-                    break;
-            }
+                Console.WriteLine("\nSelect which information you want to change: ");
+                Console.WriteLine("1. Username");
+                Console.WriteLine("2. Password");
+                Console.WriteLine("3. Email");
+                Console.WriteLine("4. Exit");
 
-            await UpdateAsync(stakeHolder.Id, stakeHolder);
+                Console.Write("Enter the operation number: ");
+                string input = Console.ReadLine()!;
+
+                switch (input)
+                {
+                    case "1":
+                        Console.Write("Please, edit your username.\nYour name: ");
+                        stakeHolder.Username = Console.ReadLine()!;
+                        Console.WriteLine("Username was successfully edited");
+                        break;
+                    case "2":
+                        await _userConsoleManager.UpdateUserPassword(stakeHolder);
+                        break;
+                    case "3":
+                        Console.Write("Please, edit your email.\nYour email: ");
+                        stakeHolder.Email = Console.ReadLine()!;
+                        Console.WriteLine("Your email was successfully edited");
+                        break;
+                    case "4":
+                        return;
+                    default:
+                        Console.WriteLine("Invalid operation number.");
+                        break;
+                }
+
+                await UpdateAsync(stakeHolder.Id, stakeHolder);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            throw;
         }
     }
 
     private async Task DisplayInfoStakeHolderAndProjectAsync(User stakeHolder)
     {
-        Console.Write($"\nYour username: {stakeHolder.Username}\n" +
-                      $"Your email: {stakeHolder.Email}\n");
+        try
+        {
+            Console.Write($"\nYour username: {stakeHolder.Username}\n" +
+                          $"Your email: {stakeHolder.Email}\n");
         
-        Console.Write("\nYour project(s):");
-        await _projectManager.DisplayProjectsAsync(stakeHolder);
+            Console.Write("\nYour project(s):");
+            await _projectManager.DisplayProjectsAsync(stakeHolder);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            throw;
+        }
     }
 
-    public async Task CheckApprovedTasksAsync(User stakeHolder)
+    private async Task CheckApprovedTasksAsync(User stakeHolder)
     {
         await _projectManager.CheckApproveTasksCountAsync(stakeHolder);
     }
 
-    public async Task AddFileToTask(User stakeHolder)
+    private async Task AddFileToTask(User stakeHolder)
     {
         var task = await _userConsoleManager.AddFileToTaskAsync();
         var project = await _projectManager.GetProjectByTaskAsync(task);
         await _projectManager.UpdateAsync(project.Id, project);
     }
-    
-    public async Task UpdateProjectAsync(User stakeHolder)
+
+    private async Task UpdateProjectAsync(User stakeHolder)
     {
         await _projectManager.UpdateProjectAsync(stakeHolder);
     }
 
-    public async Task DeleteOneProjectAsync(User stakeHolder)
+    private async Task DeleteOneProjectAsync(User stakeHolder)
     {
-        await _projectManager.DisplayProjectsAsync(stakeHolder);
-
-        Console.WriteLine($"\nEnter the name of project you want to delete:\nName: ");
-        var projectName = Console.ReadLine()!;
-
-        Console.WriteLine("Are you sure? 1 - Yes, 2 - No");
-        int choice = int.Parse(Console.ReadLine()!);
-
-        if (choice == 1)
+        try
         {
-            await _projectManager.DeleteProjectAsync(projectName);
-        }
-    }
+            await _projectManager.DisplayProjectsAsync(stakeHolder);
 
-    public async Task DeleteStakeHolderAsync(User stakeHolder)
-    {
-        Console.WriteLine("Are you sure? 1 - Yes, 2 - No");
-        int choice = int.Parse(Console.ReadLine()!);
+            Console.WriteLine($"\nEnter the name of project you want to delete:\nName: ");
+            var projectName = Console.ReadLine()!;
 
-        if (choice == 1)
-        {
-            await _projectManager.DeleteProjectsWithSteakHolderAsync(stakeHolder);
-            await DeleteAsync(stakeHolder.Id);
-        }
-    }
+            Console.WriteLine("Are you sure? 1 - Yes, 2 - No");
+            int choice = int.Parse(Console.ReadLine()!);
 
-    public async Task DeleteTasksAsync(User stakeHolder)
-    {
-        var projects = await _projectManager.GetProjectsByStakeHolder(stakeHolder);
-
-        if (projects == null)
-        {
-            Console.WriteLine("Failed to get projects.");
-            return;
-        }
-
-        foreach (var project in projects)
-        {
-            var tasks = project.Tasks;
-
-            foreach (var task in tasks)
+            if (choice == 1)
             {
-                await _projectManager.DisplayOneTaskAsync(task);
-                Console.WriteLine("\nAre you want to delete this task?\n1 - Yes, 2 - No");
-                var option = int.Parse(Console.ReadLine()!);
+                await _projectManager.DeleteProjectAsync(projectName);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            throw;
+        }
+    }
 
-                if (option == 1)
+    private async Task DeleteStakeHolderAsync(User stakeHolder)
+    {
+        try
+        {
+            Console.WriteLine("Are you sure? 1 - Yes, 2 - No");
+            int choice = int.Parse(Console.ReadLine()!);
+
+            if (choice == 1)
+            {
+                await _projectManager.DeleteProjectsWithSteakHolderAsync(stakeHolder);
+                await DeleteAsync(stakeHolder.Id);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            throw;
+        }
+    }
+
+    private async Task DeleteTasksAsync(User stakeHolder)
+    {
+        try
+        {
+            var projects = await _projectManager.GetProjectsByStakeHolder(stakeHolder);
+
+            if (projects == null)
+            {
+                Console.WriteLine("Failed to get projects.");
+                return;
+            }
+
+            foreach (var project in projects)
+            {
+                var tasks = project.Tasks;
+
+                foreach (var task in tasks)
                 {
-                    await _projectManager.DeleteCurrentTaskAsync(task);
+                    await _projectManager.DisplayOneTaskAsync(task);
+                    Console.WriteLine("\nAre you want to delete this task?\n1 - Yes, 2 - No");
+                    var option = int.Parse(Console.ReadLine()!);
+
+                    if (option == 1)
+                    {
+                        await _projectManager.DeleteCurrentTaskAsync(task);
+                    }
                 }
             }
         }
-    }
-
-    public async Task CreateProjectAsync(User stakeHolder)
-    {
-        Console.WriteLine("Create project");
-        Console.Write("Please, write name of project.\nName: ");
-        string projectName = Console.ReadLine()!;
-
-        string projectDescription;
-        Console.WriteLine("Optionally add a description to the project.\nPress 'Enter' to add");
-        ConsoleKeyInfo keyInfo = Console.ReadKey();
-
-        if (keyInfo.Key == ConsoleKey.Enter)
-            projectDescription = Console.ReadLine()!;
-        else
-            projectDescription = "empty";
-
-        Console.Write("Enter a due date for the project.\nDue date (dd.MM.yyyy): ");
-        string[] date = Console.ReadLine()!.Split('.');
-        DateTime enteredDate = new DateTime(int.Parse(date[2]), int.Parse(date[1]), int.Parse(date[0]));
-
-        await _testerManager.DisplayNameOfAllTester();
-        Console.Write("\nWrite the username of the person who will be the tester for this project.\nTester: ");
-        string testerName = Console.ReadLine()!;
-
-        var tester = await _testerManager.GetTesterByName(testerName);
-
-        await _projectManager.CreateAsync(new Project
+        catch (Exception ex)
         {
-            Name = projectName,
-            Description = projectDescription,
-            StakeHolder = stakeHolder,
-            DueDates = enteredDate,
-            Tester = tester
-        });
+            Console.WriteLine(ex.Message);
+            throw;
+        }
     }
 
-    public async Task CreateTaskToProjectAsync(User stakeHolder)
+    private async Task CreateProjectAsync(User stakeHolder)
     {
-        await _projectManager.ChooseProjectToAddTasks(stakeHolder);
+        try
+        {
+            Console.WriteLine("Create project");
+            Console.Write("Please, write name of project.\nName: ");
+            string projectName = Console.ReadLine()!;
+            
+            if (!await _projectManager.ProjectIsAlreadyExistAsync(projectName)) return;
+
+            string projectDescription;
+            Console.WriteLine("Optionally add a description to the project.\nPress 'Enter' to add");
+            ConsoleKeyInfo keyInfo = Console.ReadKey();
+
+            if (keyInfo.Key == ConsoleKey.Enter)
+                projectDescription = Console.ReadLine()!;
+            else
+                projectDescription = "empty";
+
+            Console.Write("Enter a due date for the project.\nDue date (dd.MM.yyyy): ");
+            string[] date = Console.ReadLine()!.Split('.');
+            DateTime enteredDate = new DateTime(int.Parse(date[2]), int.Parse(date[1]), int.Parse(date[0]));
+
+            await _testerManager.DisplayNameOfAllTester();
+            Console.Write("\nWrite the username of the person who will be the tester for this project.\nTester: ");
+            string testerName = Console.ReadLine()!;
+
+            var tester = await _testerManager.GetTesterByName(testerName);
+            if (tester == null)
+            {
+                Console.WriteLine(nameof(tester));
+                return;
+            }
+
+            await _projectManager.CreateAsync(new Project
+            {
+                Name = projectName,
+                Description = projectDescription,
+                StakeHolder = stakeHolder,
+                DueDates = enteredDate,
+                Tester = tester
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            throw;
+        }
+    }
+
+    private async Task CreateTaskToProjectAsync(User stakeHolder)
+    {
+        try
+        {
+            await _projectManager.ChooseProjectToAddTasks(stakeHolder);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            throw;
+        }
     }
 }

@@ -47,13 +47,13 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
             Console.Write("Enter the operation number: ");
             string input = Console.ReadLine()!;
 
-            if (input == "4")
+            if (input == "5")
             {
                 await actions[input](user);
                 break;
             }
 
-            if (input == "5") break;
+            if (input == "6") break;
             if (actions.ContainsKey(input)) await actions[input](user);
             else Console.WriteLine("Invalid operation number.");
         }
@@ -61,39 +61,55 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
 
     public async Task DisplayNameOfAllTester()
     {
-        IEnumerable<User> testers = await Service.GetAllTester();
+        try
+        {
+            IEnumerable<User> testers = await Service.GetAllTester();
         
-        if (testers == null)
-        {
-            throw new Exception("No testers");
-        }
+            if (testers == null)
+            {
+                throw new Exception("No testers");
+            }
 
-        Console.WriteLine("\nList of testers:");
-        foreach (var tester in testers)
+            Console.WriteLine("\nList of testers:");
+            foreach (var tester in testers)
+            {
+                Console.WriteLine($"- {tester.Username}");
+            }
+        }
+        catch (Exception ex)
         {
-            Console.WriteLine($"- {tester.Username}");
+            Console.WriteLine(ex.Message);
+            throw;
         }
     }
 
-    public async Task DisplayTesterAsync(User tester)
+    private async Task DisplayTesterAsync(User tester)
     {
-        Console.WriteLine($"\nName: {tester.Username}");
-        Console.WriteLine($"Email: {tester.Email}");
-
-        var tasks = await _projectTaskManager.GetWaitTasksByTesterAsync(tester);
-
-        if (tasks != null)
+        try
         {
-            Console.WriteLine("\nTasks awaiting your review:");
-            await _projectTaskManager.DisplayAllTaskByProject(tasks);
+            Console.WriteLine($"\nName: {tester.Username}");
+            Console.WriteLine($"Email: {tester.Email}");
+
+            var tasks = await _projectTaskManager.GetWaitTasksByTesterAsync(tester);
+
+            if (tasks != null)
+            {
+                Console.WriteLine("\nTasks awaiting your review:");
+                await _projectTaskManager.DisplayAllTaskByProject(tasks);
+            }
+            else
+            {
+                Console.WriteLine("Tasks did not come to check.");
+            }
         }
-        else
+        catch (Exception ex)
         {
-            Console.WriteLine("Tasks did not come to check.");
+            Console.WriteLine(ex.Message);
+            throw;
         }
     }
 
-    public async Task CheckTasksAsync(User tester)
+    private async Task CheckTasksAsync(User tester)
     {
         try
         {
@@ -173,70 +189,102 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
             Console.WriteLine("Tasks list is empty.");
         }
     }
-    
-    public async Task AddFileToTask(User stakeHolder)
-    {
-        var task = await _userManager.AddFileToTaskAsync();
-        var project = await _projectManager.GetProjectByTaskAsync(task);
-        await _projectManager.UpdateAsync(project.Id, project);
-    }
 
-    public async Task UpdateTesterAsync(User tester)
+    private async Task AddFileToTask(User stakeHolder)
     {
-        while (true)
+        try
         {
-            Console.WriteLine("\nSelect which information you want to change: ");
-            Console.WriteLine("1. Username");
-            Console.WriteLine("2. Password");
-            Console.WriteLine("3. Email");
-            Console.WriteLine("4. Exit");
-
-            Console.Write("Enter the operation number: ");
-            string input = Console.ReadLine()!;
-
-            switch (input)
-            {
-                case "1":
-                    Console.Write("Please, edit your username.\nYour name: ");
-                    tester.Username = Console.ReadLine()!;
-                    Console.WriteLine("Username was successfully edited");
-                    break;
-                case "2":
-                    await _userManager.UpdateUserPassword(tester);
-                    break;
-                case "3":
-                    Console.Write("Please, edit your email.\nYour email: ");
-                    tester.Email = Console.ReadLine()!;
-                    Console.WriteLine("Your email was successfully edited");
-                    break;
-                case "4":
-                    return;
-                default:
-                    Console.WriteLine("Invalid operation number.");
-                    break;
-            }
-
-            await UpdateAsync(tester.Id, tester);
+            var task = await _userManager.AddFileToTaskAsync();
+            var project = await _projectManager.GetProjectByTaskAsync(task);
+            await _projectManager.UpdateAsync(project.Id, project);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            throw;
         }
     }
 
-    public async Task DeleteTesterAsync(User tester)
+    private async Task UpdateTesterAsync(User tester)
     {
-        Console.WriteLine("Are you sure? 1 - Yes, 2 - No");
-        int choice = int.Parse(Console.ReadLine()!);
-
-        if (choice == 1)
+        try
         {
-            await _projectManager.DeleteTesterFromProjectsAsync(tester);
-            await _projectTaskManager.DeleteTesterFromTasksAsync(tester);
-            await DeleteAsync(tester.Id);
+            while (true)
+            {
+                Console.WriteLine("\nSelect which information you want to change: ");
+                Console.WriteLine("1. Username");
+                Console.WriteLine("2. Password");
+                Console.WriteLine("3. Email");
+                Console.WriteLine("4. Exit");
+
+                Console.Write("Enter the operation number: ");
+                string input = Console.ReadLine()!;
+
+                switch (input)
+                {
+                    case "1":
+                        Console.Write("Please, edit your username.\nYour name: ");
+                        tester.Username = Console.ReadLine()!;
+                        Console.WriteLine("Username was successfully edited");
+                        break;
+                    case "2":
+                        await _userManager.UpdateUserPassword(tester);
+                        break;
+                    case "3":
+                        Console.Write("Please, edit your email.\nYour email: ");
+                        tester.Email = Console.ReadLine()!;
+                        Console.WriteLine("Your email was successfully edited");
+                        break;
+                    case "4":
+                        return;
+                    default:
+                        Console.WriteLine("Invalid operation number.");
+                        break;
+                }
+
+                await UpdateAsync(tester.Id, tester);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            throw;
+        }
+    }
+
+    private async Task DeleteTesterAsync(User tester)
+    {
+        try
+        {
+            Console.WriteLine("Are you sure? 1 - Yes, 2 - No");
+            int choice = int.Parse(Console.ReadLine()!);
+
+            if (choice == 1)
+            {
+                await _projectManager.DeleteTesterFromProjectsAsync(tester);
+                await _projectTaskManager.DeleteTesterFromTasksAsync(tester);
+                await DeleteAsync(tester.Id);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            throw;
         }
     }
 
     public async Task<User> GetTesterByName(string name)
     {
-        var tester = await Service.GetTesterByName(name);
+        try
+        {
+            var tester = await Service.GetTesterByName(name);
 
-        return tester;
+            return tester;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            throw;
+        }
     }
 }

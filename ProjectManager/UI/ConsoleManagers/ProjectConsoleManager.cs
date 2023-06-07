@@ -17,7 +17,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         _userManager = userManager;
     }
 
-    public async Task DisplayProjectAsync(Project project)
+    private async Task DisplayProjectAsync(Project project)
     {
         Console.WriteLine($"\nName: {project.Name}");
 
@@ -86,11 +86,19 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
 
     private async Task CreateTaskForProject(Project project)
     {
-        var tasks = await _projectTaskManager.CreateTaskAsync(project);
-        project.Tasks.AddRange(tasks);
-        project.CountAllTasks = project.Tasks.Count;
+        try
+        {
+            var tasks = await _projectTaskManager.CreateTaskAsync(project);
+            project.Tasks.AddRange(tasks);
+            project.CountAllTasks = project.Tasks.Count;
 
-        await UpdateAsync(project.Id, project);
+            await UpdateAsync(project.Id, project);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            throw;
+        }
     }
 
     public async Task CheckApproveTasksCountAsync(User stakeHolder)
@@ -235,7 +243,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         }
     }
 
-    public async Task<List<Project>> GetTesterProjects(User tester)
+    private async Task<List<Project>> GetTesterProjects(User tester)
     {
         try
         {
@@ -307,7 +315,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         }
     }
 
-    public async Task UpdateTaskAsync(Project project)
+    private async Task UpdateTaskAsync(Project project)
     {
         if (project == null)
         {
@@ -331,7 +339,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         }
     }
 
-    public async Task UpdateTasksAsync(ProjectTask task)
+    private async Task UpdateTasksAsync(ProjectTask task)
     {
         var project = await Service.GetProjectByTask(task);
 
@@ -344,6 +352,13 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         {
             Console.WriteLine($"Failed to get project");
         }
+    }
+
+    public async Task<bool> ProjectIsAlreadyExistAsync(string name)
+    {
+        var check = await Service.ProjectIsAlreadyExist(name);
+
+        return check;
     }
 
     public async Task DisplayOneTaskAsync(ProjectTask task)

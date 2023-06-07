@@ -11,6 +11,15 @@ public class ProjectTaskService : GenericService<ProjectTask>, IProjectTaskServi
     {
     }
     
+    public async Task<bool> ProjectTaskIsAlreadyExist(string userInput)
+    {
+        if (string.IsNullOrWhiteSpace(userInput)) throw new ArgumentNullException(nameof(userInput));
+        
+        var check = (await GetAll()).Any(p => p.Name == userInput);
+
+        return check;
+    }
+    
     public async Task AddFileToDirectory(string sourceFilePath, ProjectTask projectTask)
     {
         const string pathToFolder = "/Users/dayanagavrylenko/Desktop/Web/dotNet/github/Technical-Task/ProjectManager/UI/bin/Debug/net6.0/DirectoryForUser";
@@ -29,11 +38,13 @@ public class ProjectTaskService : GenericService<ProjectTask>, IProjectTaskServi
             string fileNameOnly = Path.GetFileNameWithoutExtension(destinationFilePath);
             string extension = Path.GetExtension(destinationFilePath);
             string newFullPath = destinationFilePath;
+            
             while (File.Exists(newFullPath))
             {
                 string tempFileName = string.Format("{0}({1})", fileNameOnly, count++);
                 newFullPath = Path.Combine(pathToFolder, tempFileName + extension);
             }
+            
             File.Copy(sourceFilePath, newFullPath);
             projectTask.UploadedFiles.Add(newFullPath);
             await Update(projectTask.Id, projectTask);

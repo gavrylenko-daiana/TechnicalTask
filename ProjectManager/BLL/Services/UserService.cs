@@ -14,6 +14,15 @@ public class UserService : GenericService<User>, IUserService
     {
     }
 
+    public async Task<bool> UsernameIsAlreadyExist(string userInput)
+    {
+        if (string.IsNullOrWhiteSpace(userInput)) throw new ArgumentNullException(nameof(userInput));
+        
+        var check = (await GetAll()).Any(u => u.Username == userInput || u.Email == userInput);
+
+        return check;
+    }
+ 
     public async Task<User> Authenticate(string userInput, string password)
     {
         if (string.IsNullOrWhiteSpace(userInput)) throw new ArgumentNullException(nameof(userInput));

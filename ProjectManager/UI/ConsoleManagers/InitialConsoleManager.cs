@@ -36,7 +36,7 @@ public class InitialConsoleManager : ConsoleManager<IUserService, User>, IConsol
 
             if (password == "forgot")
             {
-                Console.Write("Please, write your email for update you password.\nEmail: ");
+                Console.Write("Please, write your email that was linked by you for update you password.\nEmail: ");
                 var email = Console.ReadLine()!;
 
                 try
@@ -76,9 +76,13 @@ public class InitialConsoleManager : ConsoleManager<IUserService, User>, IConsol
         Console.WriteLine("Create user");
         Console.Write("Please, write your username.\nUsername: ");
         string userName = Console.ReadLine()!;
+        
+        if (!await _userConsoleManager.UserUniquenessCheck(userName)) return;
 
         Console.Write("Please, write your email.\nEmail: ");
         string userEmail = Console.ReadLine()!;
+        
+        if (!await _userConsoleManager.UserUniquenessCheck(userName)) return;
 
         Console.Write("Please, write your password.\nPassword: ");
         string password = Console.ReadLine()!;

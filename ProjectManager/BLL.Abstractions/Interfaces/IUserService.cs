@@ -4,6 +4,8 @@ namespace BLL.Abstractions.Interfaces;
 
 public interface IUserService : IGenericService<User>
 {
+    Task<bool> UsernameIsAlreadyExist(string name);
+    
     Task<User> Authenticate(string userInput, string password);
 
     Task<User> GetUserByUsernameOrEmail(string input);

@@ -59,7 +59,7 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
         }
     }
 
-    public async Task AssignTasksToDeveloperAsync(User developer)
+    private async Task AssignTasksToDeveloperAsync(User developer)
     {
         try
         {
@@ -113,7 +113,7 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
         }
     }
 
-    public async Task SendToSubmitByTesterAsync(User developer)
+    private async Task SendToSubmitByTesterAsync(User developer)
     {
         var tasks = await _projectTaskManager.GetDeveloperTasks(developer);
 
@@ -145,7 +145,7 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
         }
     }
 
-    public async Task DisplayDeveloperAsync(User developer)
+    private async Task DisplayDeveloperAsync(User developer)
     {
         Console.WriteLine($"\nUsername: {developer.Username}");
         Console.WriteLine($"Email: {developer.Email}");
@@ -162,7 +162,7 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
         }
     }
 
-    public async Task UpdateDeveloperAsync(User developer)
+    private async Task UpdateDeveloperAsync(User developer)
     {
         while (true)
         {
@@ -198,15 +198,15 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
             }
         }
     }
-    
-    public async Task AddFileToTask(User stakeHolder)
+
+    private async Task AddFileToTask(User stakeHolder)
     {
         var task = await _userConsoleManager.AddFileToTaskAsync();
         var project = await _projectManager.GetProjectByTaskAsync(task);
         await _projectManager.UpdateAsync(project.Id, project);
     }
-    
-    public async Task DeleteDeveloperAsync(User developer)
+
+    private async Task DeleteDeveloperAsync(User developer)
     {
         Console.WriteLine("Are you sure? 1 - Yes, 2 - No");
         int choice = int.Parse(Console.ReadLine()!);    
