@@ -1,5 +1,3 @@
-using BLL.Services;
-using Core.Models;
 using UI.ConsoleManagers;
 
 namespace UI;
@@ -17,6 +15,8 @@ public class AppManager
     {
         while (true)
         {
+            Console.ReadKey();
+            Console.Clear();
             Console.WriteLine("\nAre you already registered?:");
             Console.WriteLine("1. Yes, I want to sign in.");
             Console.WriteLine("2. No, I want to register.");

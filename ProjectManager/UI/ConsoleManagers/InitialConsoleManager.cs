@@ -26,24 +26,48 @@ public class InitialConsoleManager : ConsoleManager<IUserService, User>, IConsol
 
     public async Task AuthenticateUser()
     {
-        Console.WriteLine("Please, write your username or email.\nUsername or Email: ");
-        string userInput = Console.ReadLine()!;
-        
-        Console.Write("Please, write your password.\nPassword: ");
-        string password = Console.ReadLine()!;
-
-        User getUser = await _userConsoleManager.AuthenticateUser(userInput, password);
-
-        if (getUser.PasswordHash == Service.GetPasswordHash(password))
+        try
         {
-            if (getUser.Role == UserRole.User) await _userConsoleManager.PerformOperationsAsync(getUser);
-            if (getUser.Role == UserRole.StakeHolder) await _stakeHolderManager.PerformOperationsAsync(getUser);
-            if (getUser.Role == UserRole.Developer) await _developerConsoleManager.PerformOperationsAsync(getUser);
-            if (getUser.Role == UserRole.Tester) await _testerConsoleManager.PerformOperationsAsync(getUser);
+            Console.WriteLine("Please, write your username or email.\nUsername or Email: ");
+            string userInput = Console.ReadLine()!;
+
+            Console.Write("Please, write your password.(if you forgot your password, write - 'forgot')\nPassword: ");
+            string password = Console.ReadLine()!;
+
+            if (password == "forgot")
+            {
+                Console.Write("Please, write your email that was linked by you for update you password.\nEmail: ");
+                var email = Console.ReadLine()!;
+
+                try
+                {
+                    var user = await _userConsoleManager.GetUserByUsernameOrEmailAsync(email);
+                    await _userConsoleManager.ForgotUserPassword(user);
+                    return;
+                }
+                catch
+                {
+                    Console.WriteLine("User with this email is not registered.");
+                }
+            }
+
+            User getUser = await _userConsoleManager.AuthenticateUser(userInput, password);
+
+            if (getUser.PasswordHash == Service.GetPasswordHash(password))
+            {
+                if (getUser.Role == UserRole.User) await _userConsoleManager.PerformOperationsAsync(getUser);
+                if (getUser.Role == UserRole.StakeHolder) await _stakeHolderManager.PerformOperationsAsync(getUser);
+                if (getUser.Role == UserRole.Developer) await _developerConsoleManager.PerformOperationsAsync(getUser);
+                if (getUser.Role == UserRole.Tester) await _testerConsoleManager.PerformOperationsAsync(getUser);
+            }
+            else
+            {
+                Console.WriteLine("You entered the wrong password!");
+            }
         }
-        else
+        catch
         {
-            Console.WriteLine("You entered the wrong password!");
+            Console.WriteLine("You entered an invalid username or email!");
         }
     }
 
@@ -53,8 +77,12 @@ public class InitialConsoleManager : ConsoleManager<IUserService, User>, IConsol
         Console.Write("Please, write your username.\nUsername: ");
         string userName = Console.ReadLine()!;
 
+        if (!await _userConsoleManager.UserUniquenessCheck(userName)) return;
+
         Console.Write("Please, write your email.\nEmail: ");
         string userEmail = Console.ReadLine()!;
+        
+        if (!await _userConsoleManager.UserUniquenessCheck(userName)) return;
 
         Console.Write("Please, write your password.\nPassword: ");
         string password = Console.ReadLine()!;
@@ -75,17 +103,17 @@ public class InitialConsoleManager : ConsoleManager<IUserService, User>, IConsol
     private async Task<UserRole> SelectRoleUser()
     {
         UserRole role = UserRole.Developer;
-        Console.WriteLine("Enter role for user: \n1) User(Admin); 2) Developer; 3) Tester; 4) StakeHolder");
+        Console.WriteLine("Enter role for user: \n1) StakeHolder; 2) Developer; 3) Tester;");
         int choice = int.Parse(Console.ReadLine()!);
 
         try
         {
             role = choice switch
             {
-                1 => UserRole.User,
+                1 => UserRole.StakeHolder,
                 2 => UserRole.Developer,
                 3 => UserRole.Tester,
-                4 => UserRole.StakeHolder,
+                4 => UserRole.User,
             };
         }
         catch

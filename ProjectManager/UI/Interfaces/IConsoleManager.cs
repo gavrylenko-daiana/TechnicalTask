@@ -20,5 +20,7 @@ namespace UI.Interfaces
         Task UpdateAsync(Guid id, TEntity entity);
 
         Task DeleteAsync(Guid id);
+
+        Task<string> GetTrimAsync(string input);
     }
 }

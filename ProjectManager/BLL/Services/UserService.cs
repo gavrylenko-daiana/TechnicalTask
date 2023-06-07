@@ -1,3 +1,5 @@
+using System.Net;
+using System.Net.Mail;
 using System.Security.Cryptography;
 using System.Text;
 using BLL.Abstractions.Interfaces;
@@ -12,6 +14,15 @@ public class UserService : GenericService<User>, IUserService
     {
     }
 
+    public async Task<bool> UsernameIsAlreadyExist(string userInput)
+    {
+        if (string.IsNullOrWhiteSpace(userInput)) throw new ArgumentNullException(nameof(userInput));
+        
+        var check = (await GetAll()).Any(u => u.Username == userInput || u.Email == userInput);
+
+        return check;
+    }
+ 
     public async Task<User> Authenticate(string userInput, string password)
     {
         if (string.IsNullOrWhiteSpace(userInput)) throw new ArgumentNullException(nameof(userInput));
@@ -57,5 +68,53 @@ public class UserService : GenericService<User>, IUserService
     
         user.PasswordHash = GetPasswordHash(newPassword);
         await Update(userId, user);
+    }
+    
+    public async Task<int> SendCodeToUser(string email)
+    {
+        Random rand = new Random();
+        int emailCode = rand.Next(1000, 9999);
+        string fromMail = "dayana01001@gmail.com";
+        string fromPassword = "oxizguygokwxgxgb";
+
+        MailMessage message = new MailMessage();
+        message.From = new MailAddress(fromMail);
+        message.Subject = "Verify code for update password.";
+        message.To.Add(new MailAddress($"{email}"));
+        message.Body = $"<html><body> Your code: {emailCode} </body></html>";
+        message.IsBodyHtml = true;
+
+        var smtpClient = new SmtpClient("smtp.gmail.com")
+        {
+            Port = 587,
+            Credentials = new NetworkCredential(fromMail, fromPassword),
+            EnableSsl = true,
+        };
+
+        smtpClient.Send(message);
+
+        return emailCode;
+    }
+    
+    public async Task SendMessageEmailUserAsync(string email, string messageEmail)
+    {
+        string fromMail = "dayana01001@gmail.com";
+        string fromPassword = "oxizguygokwxgxgb";
+
+        MailMessage message = new MailMessage();
+        message.From = new MailAddress(fromMail);
+        message.Subject = "Change notification.";
+        message.To.Add(new MailAddress($"{email}"));
+        message.Body = $"<html><body> {messageEmail} </body></html>";
+        message.IsBodyHtml = true;
+
+        var smtpClient = new SmtpClient("smtp.gmail.com")
+        {
+            Port = 587,
+            Credentials = new NetworkCredential(fromMail, fromPassword),
+            EnableSsl = true,
+        };
+
+        smtpClient.Send(message);
     }
 }

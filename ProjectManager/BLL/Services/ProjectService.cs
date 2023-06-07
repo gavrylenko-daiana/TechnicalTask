@@ -10,17 +10,15 @@ public class ProjectService : GenericService<Project>, IProjectService
     public ProjectService(IRepository<Project> repository) : base(repository)
     {
     }
+    
+    public async Task<bool> ProjectIsAlreadyExist(string userInput)
+    {
+        if (string.IsNullOrWhiteSpace(userInput)) throw new ArgumentNullException(nameof(userInput));
+        
+        var check = (await GetAll()).Any(p => p.Name == userInput);
 
-    // public async Task<List<User>?> GetDevelopersByProject(Project project)
-    // {
-    //     var getDevelopers = project.ClaimTaskDeveloper.Keys
-    //         .Where(u => u.Role == UserRole.Developer).ToList();
-    //
-    //     if (getDevelopers == null)
-    //         throw new NullReferenceException("Developers is not responsible for this project");
-    //     
-    //     return getDevelopers;
-    // }
+        return check;
+    }
 
     public async Task<Project> GetProjectByName(string projectName)
     {
@@ -34,6 +32,13 @@ public class ProjectService : GenericService<Project>, IProjectService
     public async Task<List<Project>> GetProjectsByStakeHolder(User stakeHolder)
     {
         List<Project> projects = (await GetAll()).Where(p => p.StakeHolder != null && p.StakeHolder.Id == stakeHolder.Id).ToList();
+
+        return projects;
+    }
+
+    public async Task<List<Project>> GetProjectByTester(User tester)
+    {
+        var projects = (await GetAll()).Where(p => p.Tester != null && p.Tester.Id == tester.Id).ToList();
 
         return projects;
     }

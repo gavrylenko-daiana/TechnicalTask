@@ -19,4 +19,6 @@ public interface IGenericService<T> where T : BaseEntity
     string GetPasswordHash(string password);
     
     bool VerifyHashedPassword(string getUserPasswordHash, string password);
+
+    Task<string> GetStringWithoutSpace(string input);
 }

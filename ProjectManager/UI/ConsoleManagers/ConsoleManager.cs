@@ -33,6 +33,20 @@ public abstract class ConsoleManager<TService, TEntity>
         }
     }
 
+    public virtual async Task<string> GetTrimAsync(string input)
+    {
+        try
+        {
+            return await Service.GetStringWithoutSpace(input);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in GetByIdAsync: {ex.Message}");
+
+            return null!;
+        }
+    }
+
     public virtual async Task<TEntity> GetByIdAsync(Guid id)
     {
         try

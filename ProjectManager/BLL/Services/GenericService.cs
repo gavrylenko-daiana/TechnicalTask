@@ -126,6 +126,18 @@ public abstract class GenericService<T> : IGenericService<T> where T : BaseEntit
         }
     }
 
+    public async Task<string> GetStringWithoutSpace(string input)
+    {
+        try
+        {
+            return input.Trim();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Failed to get all {typeof(T).Name}s. Exception: {ex.Message}");
+        }
+    }
+
     public string GetPasswordHash(string input)
     {
         using (SHA256 sha256 = SHA256.Create())
