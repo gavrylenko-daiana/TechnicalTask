@@ -22,7 +22,7 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
             Console.Write("Please, write name of task.\nName: ");
             string taskName = Console.ReadLine()!;
 
-            if (!await Service.ProjectTaskIsAlreadyExist(taskName)) return null!;
+            if (await Service.ProjectTaskIsAlreadyExist(taskName)) return null!;
 
             Console.Write("Please, write description.\nDescription: ");
             string taskDescription = Console.ReadLine()!;

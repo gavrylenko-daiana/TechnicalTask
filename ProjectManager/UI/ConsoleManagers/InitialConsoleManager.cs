@@ -76,7 +76,7 @@ public class InitialConsoleManager : ConsoleManager<IUserService, User>, IConsol
         Console.WriteLine("Create user");
         Console.Write("Please, write your username.\nUsername: ");
         string userName = Console.ReadLine()!;
-        
+
         if (!await _userConsoleManager.UserUniquenessCheck(userName)) return;
 
         Console.Write("Please, write your email.\nEmail: ");

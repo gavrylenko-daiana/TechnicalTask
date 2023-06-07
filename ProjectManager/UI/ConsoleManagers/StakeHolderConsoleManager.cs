@@ -239,7 +239,7 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
             Console.Write("Please, write name of project.\nName: ");
             string projectName = Console.ReadLine()!;
             
-            if (!await _projectManager.ProjectIsAlreadyExistAsync(projectName)) return;
+            if (await _projectManager.ProjectIsAlreadyExistAsync(projectName)) return;
 
             string projectDescription;
             Console.WriteLine("Optionally add a description to the project.\nPress 'Enter' to add");

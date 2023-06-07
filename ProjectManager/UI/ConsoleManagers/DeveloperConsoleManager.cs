@@ -58,7 +58,7 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
             else Console.WriteLine("Invalid operation number.");
         }
     }
-
+    
     private async Task AssignTasksToDeveloperAsync(User developer)
     {
         try
