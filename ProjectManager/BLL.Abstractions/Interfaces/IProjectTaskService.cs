@@ -22,4 +22,10 @@ public interface IProjectTaskService : IGenericService<ProjectTask>
     Task<ProjectTask> GetTaskByName(string taskName);
 
     Task<bool> ProjectTaskIsAlreadyExist(string userInput);
+
+    Task UpdateDueDateInTaskAsync(ProjectTask task, string[] date);
+
+    Task DeleteTasksWithProject(Project project);
+
+    Task DeleteTask(ProjectTask task);
 }

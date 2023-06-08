@@ -25,15 +25,52 @@ public class StakeHolderService : GenericService<User>, IStakeHolderService
         return stakeHolder;
     }
 
-    public async Task<Project> GetProjectByTaskAsync(ProjectTask task)
+    public async Task GetProjectByTaskAsync(ProjectTask task)
     {
         var project = await _projectService.GetProjectByTask(task);
-
-        return project;
+        await _projectService.UpdateProject(project);
+    }
+    
+    public async Task DeleteProjectAsync(string projectName)
+    {
+        await _projectService.DeleteProject(projectName);
     }
 
-    public async Task UpdateProjectByTasksAsync(Project project)
+    public async Task DeleteStakeHolder(User stakeHolder)
     {
-        await _projectService.UpdateProject(project);
+        await _projectService.DeleteProjectsWithSteakHolderAsync(stakeHolder);
+        await Delete(stakeHolder.Id);
+    }
+
+    public async Task<List<Project>> GetProjectsByStakeHolder(User stakeHolder)
+    {
+        var projects = await _projectService.GetProjectsByStakeHolder(stakeHolder);
+
+        return projects;
+    }
+
+    public async Task DeleteCurrentTask(ProjectTask task)
+    {
+        await _projectService.DeleteCurrentTaskAsync(task);
+    }
+
+    public async Task<bool> ProjectIsAlreadyExistAsync(string projectName)
+    {
+        var check= await _projectService.ProjectIsAlreadyExist(projectName);
+
+        return check;
+    }
+
+    public async Task<DateTime> UpdateDueDateInProjectAsync(string[] date)
+    {
+        var dateTime = await _projectService.UpdateDueDateInProject(date);
+
+        return dateTime;
+    }
+
+    public async Task CreateProjectAsync(string projectName, string projectDescription, User stakeHolder,
+        DateTime enteredDate, User tester)
+    {
+        await _projectService.CreateProject(projectName, projectDescription, stakeHolder, enteredDate, tester);
     }
 }

@@ -140,7 +140,7 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
 
                     if (choice == 1)
                     {
-                        task.Progress = Progress.CompletedTester;
+                        task.Progress = Progress.CompletedTask;
                         await _projectTaskManager.UpdateAsync(task.Id, task);
 
                         var project = await _projectManager.GetProjectByTaskAsync(task);

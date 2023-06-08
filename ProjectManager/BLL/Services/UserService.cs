@@ -142,11 +142,4 @@ public class UserService : GenericService<User>, IUserService
         
         return user;
     }
-
-    public async Task<List<ProjectTask>> GetAllTasks()
-    {
-        var tasks = await _projectTaskService.GetAll();
-
-        return tasks;
-    }
 }

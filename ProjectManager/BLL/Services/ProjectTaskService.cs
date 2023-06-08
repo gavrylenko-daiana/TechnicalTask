@@ -82,7 +82,7 @@ public class ProjectTaskService : GenericService<ProjectTask>, IProjectTaskServi
 
     public Task<List<ProjectTask>> GetApproveTasks(Project project)
     {
-        var approveTasks = project.Tasks.Where(t => t.Progress == Progress.CompletedTester).ToList();
+        var approveTasks = project.Tasks.Where(t => t.Progress == Progress.CompletedTask).ToList();
         
         return Task.FromResult(approveTasks);
     }
@@ -117,5 +117,24 @@ public class ProjectTaskService : GenericService<ProjectTask>, IProjectTaskServi
         if (task == null) throw new ArgumentNullException(nameof(task));
 
         return task;
+    }
+
+    public async Task UpdateDueDateInTaskAsync(ProjectTask task, string[] date)
+    {
+        task.DueDates = new DateTime(int.Parse(date[2]), int.Parse(date[1]), int.Parse(date[0]));
+        await Update(task.Id, task);
+    }
+
+    public async Task DeleteTasksWithProject(Project project)
+    {
+        foreach (var task in project.Tasks)
+        {
+            await Delete(task.Id);
+        }
+    }
+
+    public async Task DeleteTask(ProjectTask task)
+    {
+        await Delete(task.Id);
     }
 }
