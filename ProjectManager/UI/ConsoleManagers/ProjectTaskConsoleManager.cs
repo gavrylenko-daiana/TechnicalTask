@@ -69,19 +69,6 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
         return tasks;
     }
 
-    public async Task DeleteTasksWithProject(Project project)
-    {
-        foreach (var task in project.Tasks)
-        {
-            await DeleteTaskAsync(task);
-        }
-    }
-
-    public async Task DeleteTaskAsync(ProjectTask task)
-    {
-        await DeleteAsync(task.Id);
-    }
-
     public async Task DisplayTaskAsync(ProjectTask task)
     {
         Console.WriteLine($"\nName: {task.Name}");
@@ -96,59 +83,6 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
         Console.WriteLine($"Priority: {task.Priority}");
         Console.WriteLine($"DueDates: {task.DueDates.Date}");
         Console.WriteLine($"Status: {task.Progress}\n");
-    }
-
-    public async Task UpdateTaskAsync(Project project)
-    {
-        var tasks = project.Tasks;
-        
-        foreach (var task in tasks)
-        {
-            Console.WriteLine($"Are you want to update {task.Name}?\nEnter '1' - Yes, '2' - No");
-            var option = int.Parse(Console.ReadLine()!);
-        
-            if (option == 1)
-            {
-                while (true)
-                {
-                    Console.WriteLine("\nSelect which information you want to change: ");
-                    Console.WriteLine("1. Name");
-                    Console.WriteLine("2. Description");
-                    Console.WriteLine("3. Due date");
-                    Console.WriteLine("4. Exit");
-
-                    Console.Write("Enter the operation number: ");
-                    string input = Console.ReadLine()!;
-
-                    switch (input)
-                    {
-                        case "1":
-                            Console.Write("Please, edit name.\nName: ");
-                            task.Name = Console.ReadLine()!;
-                            Console.WriteLine("Name was successfully edited");
-                            break;
-                        case "2":
-                            Console.Write("Please, edit description.\nDescription: ");
-                            task.Description = Console.ReadLine()!;
-                            Console.WriteLine("Description was successfully edited");
-                            break;
-                        case "3":
-                            Console.Write("Please, edit a due date for the task.\nDue date (dd.MM.yyyy): ");
-                            string[] date = Console.ReadLine()!.Split('.');
-                            task.DueDates = new DateTime(int.Parse(date[2]), int.Parse(date[1]), int.Parse(date[0]));
-                            Console.WriteLine("Due date was successfully edited");
-                            break;
-                        case "4":
-                            return;
-                        default:
-                            Console.WriteLine("Invalid operation number.");
-                            break;
-                    }
-
-                    await UpdateAsync(task.Id, task);
-                }
-            }
-        }
     }
 
     public async Task DisplayAllTaskByProject(List<ProjectTask> tasks)

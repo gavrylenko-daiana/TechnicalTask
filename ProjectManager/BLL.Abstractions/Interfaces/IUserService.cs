@@ -21,6 +21,4 @@ public interface IUserService : IGenericService<User>
     Task AddFileFromUserAsync(string path, ProjectTask projectTask);
 
     Task<ProjectTask> GetTaskByNameAsync(string taskName);
-
-    Task<List<ProjectTask>> GetAllTasks();
 }
