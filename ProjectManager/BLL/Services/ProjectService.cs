@@ -7,8 +7,11 @@ namespace BLL.Services;
 
 public class ProjectService : GenericService<Project>, IProjectService
 {
-    public ProjectService(IRepository<Project> repository) : base(repository)
+    private readonly IProjectTaskService _projectTaskService;
+    
+    public ProjectService(IRepository<Project> repository, IProjectTaskService projectTaskService) : base(repository)
     {
+        _projectTaskService = projectTaskService;
     }
     
     public async Task<bool> ProjectIsAlreadyExist(string userInput)
@@ -48,5 +51,12 @@ public class ProjectService : GenericService<Project>, IProjectService
         var project = await GetByPredicate(p => p.Tasks.Any(t => t.Id == task.Id));
         
         return project;
+    }
+
+    public async Task UpdateProject(Project project)
+    {
+        var tasks = await _projectTaskService.GetAll();
+        project.Tasks.AddRange(tasks);
+        await Update(project.Id, project);
     }
 }

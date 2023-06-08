@@ -17,4 +17,10 @@ public interface IUserService : IGenericService<User>
     Task<int> SendCodeToUser(string email);
 
     Task SendMessageEmailUserAsync(string email, string messageEmail);
+
+    Task AddFileFromUserAsync(string path, ProjectTask projectTask);
+
+    Task<ProjectTask> GetTaskByNameAsync(string taskName);
+
+    Task<List<ProjectTask>> GetAllTasks();
 }

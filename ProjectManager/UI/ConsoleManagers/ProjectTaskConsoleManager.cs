@@ -151,11 +151,6 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
         }
     }
 
-    public async Task AddFileFromUserAsync(string path, ProjectTask projectTask)
-    {
-        await Service.AddFileToDirectory(path, projectTask);
-    }
-
     public async Task DisplayAllTaskByProject(List<ProjectTask> tasks)
     {
         if (tasks.Any())
@@ -262,13 +257,5 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
     public override Task PerformOperationsAsync(User user)
     {
         throw new NotImplementedException();
-    }
-
-    public async Task<ProjectTask> GetTaskByNameAsync(string taskName)
-    {
-        var task = await Service.GetTaskByName(taskName);
-        if (task == null) throw new ArgumentNullException(nameof(task));
-
-        return task;
     }
 }

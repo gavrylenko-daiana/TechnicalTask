@@ -14,4 +14,6 @@ public interface IProjectService : IGenericService<Project>
     Task<List<Project>> GetProjectsByStakeHolder(User stakeHolder);
 
     Task<Project> GetProjectByTask(ProjectTask task);
+
+    Task UpdateProject(Project project);
 }

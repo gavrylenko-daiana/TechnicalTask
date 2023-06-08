@@ -5,7 +5,6 @@ using UI.Interfaces;
 
 namespace UI.ConsoleManagers;
 
-// Добавить цветную консоль
 public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, User>, IConsoleManager<User>
 {
     private readonly UserConsoleManager _userConsoleManager;
@@ -141,9 +140,17 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
 
     private async Task AddFileToTask(User stakeHolder)
     {
-        var task = await _userConsoleManager.AddFileToTaskAsync();
-        var project = await _projectManager.GetProjectByTaskAsync(task);
-        await _projectManager.UpdateAsync(project.Id, project);
+        try
+        {
+            var task = await _userConsoleManager.AddFileToTaskAsync();
+            var project = await Service.GetProjectByTaskAsync(task);
+            await Service.UpdateProjectByTasksAsync(project);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            throw;
+        }
     }
 
     private async Task UpdateProjectAsync(User stakeHolder)
