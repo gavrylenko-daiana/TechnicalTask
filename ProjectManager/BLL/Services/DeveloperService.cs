@@ -5,7 +5,7 @@ using DAL.Abstractions.Interfaces;
 
 namespace BLL.Services;
 
-public class DeveloperService : UserService, IDeveloperService
+public class DeveloperService : GenericService<User>, IDeveloperService
 {
     public DeveloperService(IRepository<User> repository) : base(repository)
     {

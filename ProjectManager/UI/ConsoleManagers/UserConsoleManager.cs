@@ -236,6 +236,8 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
                 catch
                 {
                     Console.WriteLine("Tasks list is empty");
+
+                    return null!;
                 }
 
                 Console.WriteLine("Select the task to which you want to attach your file.\nName of task:");
@@ -245,9 +247,9 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
                 {
                     try
                     {
-                        var projectTask = await _projectTaskManager.GetTaskByNameAsync(nameOfTask);
-                        await _projectTaskManager.AddFileFromUserAsync(path, projectTask);
-
+                        var projectTask = await Service.GetTaskByNameAsync(nameOfTask);
+                        await Service.AddFileFromUserAsync(path, projectTask);
+                        
                         return projectTask;
                     }
                     catch (Exception ex)
@@ -269,7 +271,7 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            Console.WriteLine(ex.Message);
             throw;
         }
     }

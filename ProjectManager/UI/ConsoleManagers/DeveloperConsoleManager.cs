@@ -201,9 +201,16 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
 
     private async Task AddFileToTask(User stakeHolder)
     {
-        var task = await _userConsoleManager.AddFileToTaskAsync();
-        var project = await _projectManager.GetProjectByTaskAsync(task);
-        await _projectManager.UpdateAsync(project.Id, project);
+        try
+        {
+            var task = await _userConsoleManager.AddFileToTaskAsync();
+            var project = await _projectManager.GetProjectByTaskAsync(task);
+            await _projectManager.UpdateAsync(project.Id, project);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
     }
 
     private async Task DeleteDeveloperAsync(User developer)

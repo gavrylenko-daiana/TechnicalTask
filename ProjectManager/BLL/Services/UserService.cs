@@ -10,8 +10,11 @@ namespace BLL.Services;
 
 public class UserService : GenericService<User>, IUserService
 {
-    public UserService(IRepository<User> repository) : base(repository)
+    private readonly IProjectTaskService _projectTaskService;
+    
+    public UserService(IRepository<User> repository, IProjectTaskService projectTaskService) : base(repository)
     {
+        _projectTaskService = projectTaskService;
     }
 
     public async Task<bool> UsernameIsAlreadyExist(string userInput)
@@ -116,5 +119,34 @@ public class UserService : GenericService<User>, IUserService
         };
 
         smtpClient.Send(message);
+    }
+    
+    public async Task AddFileFromUserAsync(string path, ProjectTask projectTask)
+    {
+        await _projectTaskService.AddFileToDirectory(path, projectTask);
+    }
+    
+    public async Task<ProjectTask> GetTaskByNameAsync(string taskName)
+    {
+        var task = await _projectTaskService.GetTaskByName(taskName);
+        if (task == null) throw new ArgumentNullException(nameof(task));
+
+        return task;
+    }
+    
+    public async Task<User> AddUser(User user)
+    {
+        if (user == null) throw new ArgumentNullException(nameof(user));
+        
+        await Add(user);
+        
+        return user;
+    }
+
+    public async Task<List<ProjectTask>> GetAllTasks()
+    {
+        var tasks = await _projectTaskService.GetAll();
+
+        return tasks;
     }
 }
