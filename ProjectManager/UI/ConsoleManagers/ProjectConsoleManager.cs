@@ -65,19 +65,27 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
 
     public async Task ChooseProjectToAddTasks(User stakeHolder)
     {
-        await DisplayProjectsAsync(stakeHolder);
-
-        Console.Write($"\nEnter name of project you want to add tasks.\nName of project: ");
-        var projectName = Console.ReadLine();
-
         try
         {
-            var project = await Service.GetProjectByName(projectName!);
-            await CreateTaskForProject(project);
+            await DisplayProjectsAsync(stakeHolder);
+
+            Console.Write($"\nEnter name of project you want to add tasks.\nName of project: ");
+            var projectName = Console.ReadLine();
+
+            try
+            {
+                var project = await Service.GetProjectByName(projectName!);
+                await CreateTaskForProject(project);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"This name does not exist.");
+            }
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            Console.WriteLine($"This name does not exist.");
+            Console.WriteLine(e.Message);
+            throw;
         }
     }
 
@@ -112,7 +120,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
 
             var tasks = await Service.GetCompletedTask(project);
 
-            if (project.CountDoneTasks == project.CountAllTasks && !tasks.Any())
+            if (project.CountDoneTasks == project.CountAllTasks && tasks.Any())
             {
                 await DisplayProjectAsync(project);
                 Console.WriteLine("Do you want to approve this project?\nEnter 1 - Yes, 2 - No");
@@ -170,7 +178,7 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
                 Console.WriteLine("1. Name");
                 Console.WriteLine("2. Description");
                 Console.WriteLine("3. Due date");
-                Console.WriteLine("4. Tasks");
+                Console.WriteLine("4. Task");
                 Console.WriteLine("5. Exit");
 
                 Console.Write("Enter the operation number: ");
@@ -209,109 +217,46 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         }
     }
 
-    public async Task UpdateTaskInProjectAsync(Project project)
+    public async Task<ProjectTask> UpdateTaskInProjectAsync(ProjectTask task)
     {
-        var tasks = project.Tasks;
+        Console.WriteLine("\nSelect which information you want to change: ");
+        Console.WriteLine("1. Name");
+        Console.WriteLine("2. Description");
+        Console.WriteLine("3. Due date");
+        Console.WriteLine("4. Exit");
+        Console.Write("Enter the operation number: ");
+        string input = Console.ReadLine()!;
 
-        foreach (var task in tasks)
+        switch (input)
         {
-            Console.WriteLine($"Are you want to update {task.Name}?\nEnter '1' - Yes, '2' - No");
-            var option = int.Parse(Console.ReadLine()!);
-
-            if (option == 1)
-            {
-                while (true)
-                {
-                    Console.WriteLine("\nSelect which information you want to change: ");
-                    Console.WriteLine("1. Name");
-                    Console.WriteLine("2. Description");
-                    Console.WriteLine("3. Due date");
-                    Console.WriteLine("4. Exit");
-
-                    Console.Write("Enter the operation number: ");
-                    string input = Console.ReadLine()!;
-
-                    switch (input)
-                    {
-                        case "1":
-                            Console.Write("Please, edit name.\nName: ");
-                            task.Name = Console.ReadLine()!;
-                            Console.WriteLine("Name was successfully edited");
-                            break;
-                        case "2":
-                            Console.Write("Please, edit description.\nDescription: ");
-                            task.Description = Console.ReadLine()!;
-                            Console.WriteLine("Description was successfully edited");
-                            break;
-                        case "3":
-                            Console.Write("Please, edit a due date for the task.\nDue date (dd.MM.yyyy): ");
-                            string[] date = Console.ReadLine()!.Split('.');
-                            await Service.UpdateDueDateInTask(task, date);
-                            Console.WriteLine("Due date was successfully edited");
-                            break;
-                        case "4":
-                            return;
-                        default:
-                            Console.WriteLine("Invalid operation number.");
-                            break;
-                    }
-
-                    await _projectTaskManager.UpdateAsync(task.Id, task);
-                    await Service.UpdateProject(project);
-                }
-            }
+            case "1":
+                Console.Write("Please, edit name.\nName: ");
+                task.Name = Console.ReadLine()!;
+                Console.WriteLine("Name was successfully edited");
+                break;
+            case "2":
+                Console.Write("Please, edit description.\nDescription: ");
+                task.Description = Console.ReadLine()!;
+                Console.WriteLine("Description was successfully edited");
+                break;
+            case "3":
+                Console.Write("Please, edit a due date for the task.\nDue date (dd.MM.yyyy): ");
+                string[] date = Console.ReadLine()!.Split('.');
+                await Service.UpdateDueDateInTask(task, date);
+                Console.WriteLine("Due date was successfully edited");
+                break;
+            case "4":
+                return null!;
+            default:
+                Console.WriteLine("Invalid operation number.");
+                break;
         }
+
+        await _projectTaskManager.UpdateAsync(task.Id, task);
+
+        return task;
     }
 
-    public async Task DeleteTesterFromProjectsAsync(User tester)
-    {
-        var projects = await GetTesterProjects(tester);
-
-        if (projects.Any())
-        {
-            foreach (var project in projects)
-            {
-                project.Tester = null!;
-                await UpdateAsync(project.Id, project);
-            }
-        }
-    }
-
-    private async Task<List<Project>> GetTesterProjects(User tester)
-    {
-        try
-        {
-            var projects = await Service.GetProjectByTester(tester);
-            return projects;
-        }
-        catch
-        {
-            Console.WriteLine($"Task list is empty.");
-        }
-
-        return null!;
-    }
-
-    //------------------
-
-    public async Task<Project> GetProjectByName(string projectName)
-    {
-        var project = await Service.GetProjectByName(projectName);
-
-        return project;
-    }
-
-    public async Task DeleteCurrentTaskAsync(ProjectTask task)
-    {
-        try
-        {
-            await Service.DeleteCurrentTaskAsync(task);
-        }
-        catch
-        {
-            Console.WriteLine($"Failed to get project");
-        }
-    }
 
     private async Task UpdateTaskAsync(Project project)
     {
@@ -322,40 +267,33 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         }
 
         var tasks = project.Tasks;
-
+        var modifiedTask = new List<ProjectTask>();
+        
         foreach (var task in tasks)
         {
             await DisplayOneTaskAsync(task);
-            Console.WriteLine("\nAre you want to update this task?\n1 - Yes, 2 - No");
+            Console.WriteLine($"\nAre you want to update {task.Name}?\n1 - Yes, 2 - No");
             var option = int.Parse(Console.ReadLine()!);
 
             if (option == 1)
             {
-                await UpdateTasksAsync(task);
-                await UpdateAsync(project.Id, project);
+                try
+                {
+                    var projectByTask = await Service.GetProjectByTask(task);
+
+                    if (projectByTask != null && projectByTask.Tasks.Any())
+                    {
+                        var newTask = await UpdateTaskInProjectAsync(task);
+                        await Service.UpdateTask(task, modifiedTask, project, newTask);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Failed to get project, {ex.Message}");
+                    throw;
+                }
             }
         }
-    }
-
-    private async Task UpdateTasksAsync(ProjectTask task)
-    {
-        var project = await Service.GetProjectByTask(task);
-
-        if (project != null && project.Tasks.Any())
-        {
-            await UpdateTaskInProjectAsync(project);
-        }
-        else
-        {
-            Console.WriteLine($"Failed to get project");
-        }
-    }
-
-    public async Task<bool> ProjectIsAlreadyExistAsync(string name)
-    {
-        var check = await Service.ProjectIsAlreadyExist(name);
-
-        return check;
     }
 
     public async Task DisplayOneTaskAsync(ProjectTask task)
