@@ -1,8 +1,10 @@
+using System.ComponentModel;
 using System.Net;
 using System.Net.Mail;
 using System.Security.Cryptography;
 using System.Text;
 using BLL.Abstractions.Interfaces;
+using Core.Enums;
 using Core.Models;
 using DAL.Abstractions.Interfaces;
 
@@ -26,10 +28,9 @@ public class UserService : GenericService<User>, IUserService
         return check;
     }
  
-    public async Task<User> Authenticate(string userInput, string password)
+    public async Task<User> Authenticate(string userInput)
     {
         if (string.IsNullOrWhiteSpace(userInput)) throw new ArgumentNullException(nameof(userInput));
-        if (string.IsNullOrWhiteSpace(password)) throw new ArgumentNullException(nameof(password));
 
         User user = await GetByPredicate(u => u.Username == userInput || u.Email == userInput);
 
@@ -47,17 +48,6 @@ public class UserService : GenericService<User>, IUserService
         if (user == null) throw new ArgumentNullException(nameof(user));
 
         return user;
-    }
-
-    public async Task<List<User>> GetUsersByRole(string role)
-    {
-        if (string.IsNullOrWhiteSpace(role)) throw new ArgumentNullException(nameof(role));
-
-        IEnumerable<User> users = (await GetAll()).Where(u => u.Role.ToString() == role);
-            
-        if (users == null) throw new ArgumentNullException(nameof(users));
-
-        return (List<User>)users;
     }
 
     public async Task UpdatePassword(Guid userId, string newPassword)
@@ -134,12 +124,38 @@ public class UserService : GenericService<User>, IUserService
         return task;
     }
     
-    public async Task<User> AddUser(User user)
+    public async Task AddNewUser(string userName, string userEmail, string password, UserRole role)
     {
-        if (user == null) throw new ArgumentNullException(nameof(user));
+        await Add(new User
+        {
+            Username = userName,
+            Email = userEmail,
+            PasswordHash = GetPasswordHash(password),
+            Role = role
+        });
+    }
+
+    public async Task<UserRole> GetRole(UserRole role, int choice)
+    {
+        if (!Enum.IsDefined(typeof(UserRole), role))
+            throw new InvalidEnumArgumentException(nameof(role), (int)role, typeof(UserRole));
+        if (choice <= 0 && choice > 4) throw new ArgumentOutOfRangeException(nameof(choice));
         
-        await Add(user);
-        
-        return user;
+        try
+        {
+            role = choice switch
+            {
+                1 => UserRole.StakeHolder,
+                2 => UserRole.Developer,
+                3 => UserRole.Tester,
+                4 => UserRole.User,
+            };
+
+            return role;
+        }
+        catch
+        {
+            throw new Exception("Such a type of subscription does not exist!");
+        }
     }
 }
