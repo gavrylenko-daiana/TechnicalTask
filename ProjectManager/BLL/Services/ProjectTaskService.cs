@@ -109,7 +109,33 @@ public class ProjectTaskService : GenericService<ProjectTask>, IProjectTaskServi
             return 0;
         }
     }
+
+    public async Task DeleteTesterFromTasksAsync(User tester)
+    {
+        var tasks = await GetTasksByTester(tester);
+
+        if (tasks.Any())
+        {
+            foreach (var task in tasks)
+            {
+                task.Tester = null!;
+                await Update(task.Id, task);
+            }
+        }
+    }
     
+    public async Task DeleteDeveloperFromTasksAsync(List<ProjectTask> tasks)
+    {
+        if (tasks.Any())
+        {
+            foreach (var task in tasks)
+            {
+                task.Developer = null!;
+                await Update(task.Id, task);
+            }
+        }
+    }
+
     public async Task<ProjectTask> GetTaskByName(string taskName)
     {
         ProjectTask task = await GetByPredicate(t => t.Name == taskName);
@@ -136,5 +162,37 @@ public class ProjectTaskService : GenericService<ProjectTask>, IProjectTaskServi
     public async Task DeleteTask(ProjectTask task)
     {
         await Delete(task.Id);
+    }
+
+    public async Task<DateTime> CreateDueDateForTask(Project project, string[] date)
+    {
+        DateTime enteredDate = new DateTime(int.Parse(date[2]), int.Parse(date[1]), int.Parse(date[0]));
+
+        DateTime now = DateTime.Now;
+        if (enteredDate < now)
+        {
+            enteredDate = now.AddDays(1);
+        }
+
+        DateTime term = enteredDate <= project.DueDates.Date
+            ? enteredDate
+            : project.DueDates.Date;
+
+        return term;
+    }
+    
+    public async Task<ProjectTask> CreateTaskAsync(string taskName, string taskDescription, DateTime term, Priority priority, User tester)
+    {
+        var task = new ProjectTask
+        {
+            Name = taskName,
+            Description = taskDescription,
+            DueDates = term,
+            Priority = priority,
+            Tester = tester
+        };
+        await Add(task);
+        
+        return task;
     }
 }
