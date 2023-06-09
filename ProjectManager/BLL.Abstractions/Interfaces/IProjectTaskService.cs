@@ -19,6 +19,8 @@ public interface IProjectTaskService : IGenericService<ProjectTask>
 
     Task<Priority> GetPriority(int choice, Priority priority);
 
+    Task DeleteTesterFromTasksAsync(User tester);
+
     Task<ProjectTask> GetTaskByName(string taskName);
 
     Task<bool> ProjectTaskIsAlreadyExist(string userInput);
@@ -28,4 +30,11 @@ public interface IProjectTaskService : IGenericService<ProjectTask>
     Task DeleteTasksWithProject(Project project);
 
     Task DeleteTask(ProjectTask task);
+
+    Task DeleteDeveloperFromTasksAsync(List<ProjectTask> tasks);
+
+    Task<DateTime> CreateDueDateForTask(Project project, string[] date);
+
+    Task<ProjectTask> CreateTaskAsync(string taskName, string taskDescription, DateTime term, Priority priority,
+        User tester);
 }

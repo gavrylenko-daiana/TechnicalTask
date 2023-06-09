@@ -8,10 +8,12 @@ namespace BLL.Services;
 public class StakeHolderService : GenericService<User>, IStakeHolderService
 {
     private readonly IProjectService _projectService;
+    private readonly ITesterService _testerService;
     
-    public StakeHolderService(IRepository<User> repository, IProjectService projectService) : base(repository)
+    public StakeHolderService(IRepository<User> repository, IProjectService projectService, ITesterService testerService) : base(repository)
     {
         _projectService = projectService;
+        _testerService = testerService;
     }
 
     public async Task<User> GetStakeHolderByUsernameOrEmail(string? input)
@@ -25,7 +27,7 @@ public class StakeHolderService : GenericService<User>, IStakeHolderService
         return stakeHolder;
     }
 
-    public async Task GetProjectByTaskAsync(ProjectTask task)
+    public async Task UpdateProjectByTask(ProjectTask task)
     {
         var project = await _projectService.GetProjectByTask(task);
         await _projectService.UpdateProject(project);
@@ -72,5 +74,12 @@ public class StakeHolderService : GenericService<User>, IStakeHolderService
         DateTime enteredDate, User tester)
     {
         await _projectService.CreateProject(projectName, projectDescription, stakeHolder, enteredDate, tester);
+    }
+
+    public async Task<User> GetTesterByNameAsync(string name)
+    {
+        var tester = await _testerService.GetTesterByName(name);
+
+        return tester;
     }
 }

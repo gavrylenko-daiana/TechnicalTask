@@ -4,9 +4,7 @@ namespace BLL.Abstractions.Interfaces;
 
 public interface IStakeHolderService : IGenericService<User>
 {
-    Task<User> GetStakeHolderByUsernameOrEmail(string? username);
-
-    Task GetProjectByTaskAsync(ProjectTask task);
+    Task UpdateProjectByTask(ProjectTask task);
 
     Task DeleteProjectAsync(string projectName);
 
@@ -22,4 +20,6 @@ public interface IStakeHolderService : IGenericService<User>
 
     Task CreateProjectAsync(string projectName, string projectDescription, User stakeHolder,
         DateTime enteredDate, User tester);
+
+    Task<User> GetTesterByNameAsync(string name);
 }

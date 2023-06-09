@@ -8,8 +8,6 @@ public interface IProjectService : IGenericService<Project>
 
     Task<Project> GetProjectByName(string projectName);
 
-    Task<List<Project>> GetProjectByTester(User tester);
-
     Task<List<Project>> GetProjectsByStakeHolder(User stakeHolder);
 
     Task<Project> GetProjectByTask(ProjectTask task);
@@ -30,10 +28,6 @@ public interface IProjectService : IGenericService<Project>
 
     Task DeleteProject(string projectName);
 
-    Task DeleteTasksWithProjectAsync(Project project);
-
-    Task DeleteTaskFromProject(Project project, ProjectTask task);
-
     Task DeleteProjectsWithSteakHolderAsync(User stakeHolder);
 
     Task DeleteCurrentTaskAsync(ProjectTask task);
@@ -42,4 +36,8 @@ public interface IProjectService : IGenericService<Project>
         DateTime enteredDate, User tester);
 
     Task AddTaskToProject(Project project, List<ProjectTask> tasks);
+
+    Task DeleteTesterFromProjectsAsync(User tester);
+
+    Task UpdateTask(ProjectTask task, List<ProjectTask> modifierTasks, Project project, ProjectTask newTask);
 }

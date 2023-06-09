@@ -1,3 +1,4 @@
+using Core.Enums;
 using Core.Models;
 
 namespace BLL.Abstractions.Interfaces;
@@ -6,11 +7,9 @@ public interface IUserService : IGenericService<User>
 {
     Task<bool> UsernameIsAlreadyExist(string name);
     
-    Task<User> Authenticate(string userInput, string password);
+    Task<User> Authenticate(string userInput);
 
     Task<User> GetUserByUsernameOrEmail(string input);
-        
-    Task<List<User>> GetUsersByRole(string role);
 
     Task UpdatePassword(Guid getUserId, string newUserPassword);
 
@@ -21,4 +20,8 @@ public interface IUserService : IGenericService<User>
     Task AddFileFromUserAsync(string path, ProjectTask projectTask);
 
     Task<ProjectTask> GetTaskByNameAsync(string taskName);
+
+    Task AddNewUser(string userName, string userEmail, string password, UserRole role);
+
+    Task<UserRole> GetRole(UserRole role, int choice);
 }

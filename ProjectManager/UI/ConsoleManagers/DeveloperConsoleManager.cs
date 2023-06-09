@@ -62,20 +62,13 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
     private async Task AssignTasksToDeveloperAsync(User developer)
     {
         try
-        {
-            try
-            {
-                await _projectManager.DisplayAllProjectsAsync();
-            }
-            catch
-            {
-                Console.WriteLine("Failed to display projects");
-            }
+        { 
+            await _projectManager.DisplayAllProjectsAsync();
 
             Console.WriteLine("Write the name of the project from which you want to take tasks.");
             var projectName = Console.ReadLine()!;
 
-            var project = await _projectManager.GetProjectByName(projectName);
+            var project = await Service.GetProjectByNameAsync(projectName);
             var tasks = project.Tasks;
 
             if (tasks.Count != 0)
@@ -91,11 +84,10 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
 
                         if (choice == 1)
                         {
-                            task.Developer = developer;
-                            task.Progress = Progress.InProgress;
-                            await _projectTaskManager.UpdateAsync(task.Id, task);
+                            await Service.TakeTaskByDeveloper(task, developer);
+                            await _projectManager.UpdateAsync(project.Id, project);
 
-                            // await _userConsoleManager.SendMessageEmailUser(developer.Email, "The task has been changed from Planned to InProgress");
+                            await Service.SendMailToUserAsync(developer.Email, "The task has been changed from Planned to InProgress");
                         }
                     }
                 }
@@ -104,8 +96,6 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
             {
                 Console.WriteLine($"Task list is empty!");
             }
-
-            await _projectManager.UpdateAsync(project.Id, project);
         }
         catch (Exception ex)
         {
@@ -115,7 +105,7 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
 
     private async Task SendToSubmitByTesterAsync(User developer)
     {
-        var tasks = await _projectTaskManager.GetDeveloperTasks(developer);
+        var tasks = await Service.GetDeveloperTasks(developer);
 
         if (tasks.Any())
         {
@@ -129,16 +119,10 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
 
                     if (option == 1)
                     {
-                        task.Progress = Progress.WaitingTester;
-                        await _projectTaskManager.UpdateAsync(task.Id, task);
+                        await Service.UpdateProgressToWaitTester(task);
 
-                        var project = await _projectManager.GetProjectByTaskAsync(task);
-                        
-                        project.Tasks.First(t => t.Id == task.Id).Progress = Progress.WaitingTester;
-                        await _projectManager.UpdateAsync(project.Id, project);
-
-                        //await _userConsoleManager.SendMessageEmailUser(developer.Email, $"The task - {task.Name} has been changed from InProgress to WaitingTester");
-                        //await _userConsoleManager.SendMessageEmailUser(task.Tester.Email, "A new task - {task.Name} awaits your review.");
+                        await Service.SendMailToUserAsync(developer.Email, $"The task - {task.Name} has been changed from InProgress to WaitingTester");
+                        await Service.SendMailToUserAsync(task.Tester.Email, "A new task - {task.Name} awaits your review.");
                     }
                 }
             }
@@ -150,7 +134,7 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
         Console.WriteLine($"\nUsername: {developer.Username}");
         Console.WriteLine($"Email: {developer.Email}");
 
-        var tasks = await _projectTaskManager.GetDeveloperTasks(developer);
+        var tasks = await Service.GetDeveloperTasks(developer);
         
         if (tasks.Any())
         {
@@ -164,48 +148,23 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
 
     private async Task UpdateDeveloperAsync(User developer)
     {
-        while (true)
+        try
         {
-            Console.WriteLine("\nSelect which information you want to change: ");
-            Console.WriteLine("1. Username");
-            Console.WriteLine("2. Password");
-            Console.WriteLine("3. Email");
-            Console.WriteLine("4. Exit");
-
-            Console.Write("Enter the operation number: ");
-            string input = Console.ReadLine()!;
-
-            switch (input)
-            {
-                case "1":
-                    Console.Write("Please, edit your username.\nYour name: ");
-                    developer.Username = Console.ReadLine()!;
-                    Console.WriteLine("Username was successfully edited");
-                    break;
-                case "2":
-                    await _userConsoleManager.UpdateUserPassword(developer);
-                    break;
-                case "3":
-                    Console.Write("Please, edit your email.\nYour email: ");
-                    developer.Email = Console.ReadLine()!;
-                    Console.WriteLine("Your email was successfully edited");
-                    break;
-                case "4":
-                    return;
-                default:
-                    Console.WriteLine("Invalid operation number.");
-                    break;
-            }
+            await _userConsoleManager.UpdateUserAsync(developer);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            throw;
         }
     }
 
-    private async Task AddFileToTask(User stakeHolder)
+    private async Task AddFileToTask(User developer)
     {
         try
         {
             var task = await _userConsoleManager.AddFileToTaskAsync();
-            var project = await _projectManager.GetProjectByTaskAsync(task);
-            await _projectManager.UpdateAsync(project.Id, project);
+            await Service.UpdateProjectByTask(task);
         }
         catch (Exception ex)
         {
@@ -220,9 +179,7 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
 
         if (choice == 1)
         {
-            var tasks = await _projectTaskManager.GetDeveloperTasks(developer);
-            await _projectTaskManager.DeleteDeveloperFromTasksAsync(tasks);
-            await DeleteAsync(developer.Id);
+            await Service.DeleteDeveloperFromTasks(developer);
         }
     }
 }

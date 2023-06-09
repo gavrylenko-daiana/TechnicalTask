@@ -41,7 +41,7 @@ public class InitialConsoleManager : ConsoleManager<IUserService, User>, IConsol
 
                 try
                 {
-                    var user = await _userConsoleManager.GetUserByUsernameOrEmailAsync(email);
+                    var user = await Service.GetUserByUsernameOrEmail(email);
                     await _userConsoleManager.ForgotUserPassword(user);
                     return;
                 }
@@ -51,7 +51,7 @@ public class InitialConsoleManager : ConsoleManager<IUserService, User>, IConsol
                 }
             }
 
-            User getUser = await _userConsoleManager.AuthenticateUser(userInput, password);
+            User getUser = await Service.Authenticate(userInput);
 
             if (getUser.PasswordHash == Service.GetPasswordHash(password))
             {
@@ -82,7 +82,7 @@ public class InitialConsoleManager : ConsoleManager<IUserService, User>, IConsol
         Console.Write("Please, write your email.\nEmail: ");
         string userEmail = Console.ReadLine()!;
         
-        if (!await _userConsoleManager.UserUniquenessCheck(userName)) return;
+        if (!await _userConsoleManager.UserUniquenessCheck(userEmail)) return;
 
         Console.Write("Please, write your password.\nPassword: ");
         string password = Console.ReadLine()!;
@@ -91,13 +91,7 @@ public class InitialConsoleManager : ConsoleManager<IUserService, User>, IConsol
 
         Console.WriteLine("User was successfully added");
 
-        await CreateAsync(new User
-        {
-            Username = userName,
-            Email = userEmail,
-            PasswordHash = Service.GetPasswordHash(password),
-            Role = role
-        });
+        await Service.AddNewUser(userName, userEmail, password, role);
     }
 
     private async Task<UserRole> SelectRoleUser()
@@ -106,20 +100,7 @@ public class InitialConsoleManager : ConsoleManager<IUserService, User>, IConsol
         Console.WriteLine("Enter role for user: \n1) StakeHolder; 2) Developer; 3) Tester;");
         int choice = int.Parse(Console.ReadLine()!);
 
-        try
-        {
-            role = choice switch
-            {
-                1 => UserRole.StakeHolder,
-                2 => UserRole.Developer,
-                3 => UserRole.Tester,
-                4 => UserRole.User,
-            };
-        }
-        catch
-        {
-            Console.WriteLine("Such a type of subscription does not exist!");
-        }
+        role = await Service.GetRole(role, choice);
 
         return role;
     }

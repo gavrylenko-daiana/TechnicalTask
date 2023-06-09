@@ -59,8 +59,8 @@ public class ProjectService : GenericService<Project>, IProjectService
 
     public async Task UpdateProject(Project project)
     {
-        var tasks = await _projectTaskService.GetAll();
-        project.Tasks.AddRange(tasks);
+        var tasks = (await _projectTaskService.GetAll()).Where(t => project.Tasks.Any(p => p.Id == t.Id)).ToList();
+        project.Tasks = tasks;
         await Update(project.Id, project);
     }
 
@@ -173,6 +173,32 @@ public class ProjectService : GenericService<Project>, IProjectService
     {
         project.Tasks.AddRange(tasks);
         project.CountAllTasks = project.Tasks.Count;
+        await Update(project.Id, project);
+    }
+    
+    public async Task DeleteTesterFromProjectsAsync(User tester)
+    {
+        var projects = await GetProjectByTester(tester);
+
+        if (projects.Any())
+        {
+            foreach (var project in projects)
+            {
+                project.Tester = null!;
+                await Update(project.Id, project);
+            }
+        }
+    }
+
+    public async Task UpdateTask(ProjectTask task, List<ProjectTask> modifierTasks, Project project, ProjectTask newTask)
+    {
+        if (newTask != null)
+        {
+            modifierTasks.Add(newTask);
+            project.Tasks.RemoveAll(x => x.Id == task.Id);
+        }
+                        
+        project.Tasks.AddRange(modifierTasks);
         await Update(project.Id, project);
     }
 }

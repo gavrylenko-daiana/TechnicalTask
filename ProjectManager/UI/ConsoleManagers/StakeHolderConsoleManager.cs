@@ -71,43 +71,7 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
     {
         try
         {
-            await DisplayInfoStakeHolderAndProjectAsync(stakeHolder);
-
-            while (true)
-            {
-                Console.WriteLine("\nSelect which information you want to change: ");
-                Console.WriteLine("1. Username");
-                Console.WriteLine("2. Password");
-                Console.WriteLine("3. Email");
-                Console.WriteLine("4. Exit");
-
-                Console.Write("Enter the operation number: ");
-                string input = Console.ReadLine()!;
-
-                switch (input)
-                {
-                    case "1":
-                        Console.Write("Please, edit your username.\nYour name: ");
-                        stakeHolder.Username = Console.ReadLine()!;
-                        Console.WriteLine("Username was successfully edited");
-                        break;
-                    case "2":
-                        await _userConsoleManager.UpdateUserPassword(stakeHolder);
-                        break;
-                    case "3":
-                        Console.Write("Please, edit your email.\nYour email: ");
-                        stakeHolder.Email = Console.ReadLine()!;
-                        Console.WriteLine("Your email was successfully edited");
-                        break;
-                    case "4":
-                        return;
-                    default:
-                        Console.WriteLine("Invalid operation number.");
-                        break;
-                }
-
-                await UpdateAsync(stakeHolder.Id, stakeHolder);
-            }
+            await _userConsoleManager.UpdateUserAsync(stakeHolder);
         }
         catch (Exception ex)
         {
@@ -143,7 +107,7 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
         try
         {
             var task = await _userConsoleManager.AddFileToTaskAsync();
-            await Service.GetProjectByTaskAsync(task);
+            await Service.UpdateProjectByTask(task);
         }
         catch (Exception e)
         {
@@ -261,8 +225,7 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
             await _testerManager.DisplayNameOfAllTester();
             Console.Write("\nWrite the username of the person who will be the tester for this project.\nTester: ");
             string testerName = Console.ReadLine()!;
-
-            var tester = await _testerManager.GetTesterByName(testerName);
+            var tester = await Service.GetTesterByNameAsync(testerName);
             
             if (tester == null)
             {

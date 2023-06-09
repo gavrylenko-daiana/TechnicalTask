@@ -11,14 +11,12 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
 {
     private readonly UserConsoleManager _userManager;
     private readonly ProjectTaskConsoleManager _projectTaskManager;
-    private readonly ProjectConsoleManager _projectManager;
 
     public TesterConsoleManager(ITesterService service, UserConsoleManager userManager,
-        ProjectTaskConsoleManager projectTaskManager, ProjectConsoleManager projectManager) : base(service)
+        ProjectTaskConsoleManager projectTaskManager) : base(service)
     {
         _userManager = userManager;
         _projectTaskManager = projectTaskManager;
-        _projectManager = projectManager;
     }
 
     public override async Task PerformOperationsAsync(User user)
@@ -90,7 +88,7 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
             Console.WriteLine($"\nName: {tester.Username}");
             Console.WriteLine($"Email: {tester.Email}");
 
-            var tasks = await _projectTaskManager.GetWaitTasksByTesterAsync(tester);
+            var tasks = await Service.GetWaitTasksByTesterAsync(tester);
 
             if (tasks != null)
             {
@@ -113,7 +111,7 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
     {
         try
         {
-            var tasks = await _projectTaskManager.GetTesterTasksAsync(tester);
+            var tasks = await Service.GetTesterTasksAsync(tester);
             
             if (!tasks.Any())
             {
@@ -140,37 +138,24 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
 
                     if (choice == 1)
                     {
-                        task.Progress = Progress.CompletedTask;
-                        await _projectTaskManager.UpdateAsync(task.Id, task);
-
-                        var project = await _projectManager.GetProjectByTaskAsync(task);
-                        project.CountDoneTasks += 1;
-                        project.Tasks.First(t => t.Id == task.Id).Progress = task.Progress; 
-
-                        await _projectManager.UpdateAsync(project.Id, project);
+                        await Service.AddCompletedTask(task);
 
                         break;
                     }
                     else if (choice == 2)
                     {
-                        task.Progress = Progress.InProgress;
-                        var project = await _projectManager.GetProjectByTaskAsync(task);
-                        project.CountDoneTasks -= 1;
-                        project.Tasks.First(t => t.Id == task.Id).Progress = task.Progress; 
-                        
-                        await _projectTaskManager.UpdateAsync(task.Id, task);
-                        await _projectManager.UpdateAsync(project.Id, project);
-                        
+                        await Service.ReturnTaskInProgress(task);
+
                         Console.WriteLine("Select the reason for rejection:\n" +
                                           "1. Expired due date\n" +
                                           "2. Need to fix");
                         int option = int.Parse(Console.ReadLine()!);
 
                         if (option == 1)
-                            await _userManager.SendMessageEmailUser(task.Developer.Email,
+                            await Service.SendMailToUserAsync(task.Developer.Email,
                                 $"The task with the name {task.Name} and the deadline of {task.DueDates} has expired.\nThe message was sent from the tester - {task.Tester.Username}.");
                         else if (option == 2)
-                            await _userManager.SendMessageEmailUser(task.Developer.Email,
+                            await Service.SendMailToUserAsync(task.Developer.Email,
                                 $"The task with the name {task.Name} needs to be fixed.\nThe message was sent from the tester - {task.Tester.Username}.");
                         else
                             Console.WriteLine("Invalid operation number.");
@@ -195,8 +180,7 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
         try
         {
             var task = await _userManager.AddFileToTaskAsync();
-            var project = await _projectManager.GetProjectByTaskAsync(task);
-            await _projectManager.UpdateAsync(project.Id, project);
+            await Service.UpdateProjectByTask(task);
         }
         catch (Exception ex)
         {
@@ -209,41 +193,7 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
     {
         try
         {
-            while (true)
-            {
-                Console.WriteLine("\nSelect which information you want to change: ");
-                Console.WriteLine("1. Username");
-                Console.WriteLine("2. Password");
-                Console.WriteLine("3. Email");
-                Console.WriteLine("4. Exit");
-
-                Console.Write("Enter the operation number: ");
-                string input = Console.ReadLine()!;
-
-                switch (input)
-                {
-                    case "1":
-                        Console.Write("Please, edit your username.\nYour name: ");
-                        tester.Username = Console.ReadLine()!;
-                        Console.WriteLine("Username was successfully edited");
-                        break;
-                    case "2":
-                        await _userManager.UpdateUserPassword(tester);
-                        break;
-                    case "3":
-                        Console.Write("Please, edit your email.\nYour email: ");
-                        tester.Email = Console.ReadLine()!;
-                        Console.WriteLine("Your email was successfully edited");
-                        break;
-                    case "4":
-                        return;
-                    default:
-                        Console.WriteLine("Invalid operation number.");
-                        break;
-                }
-
-                await UpdateAsync(tester.Id, tester);
-            }
+            await _userManager.UpdateUserAsync(tester);
         }
         catch (Exception ex)
         {
@@ -261,25 +211,8 @@ public class TesterConsoleManager : ConsoleManager<ITesterService, User>, IConso
 
             if (choice == 1)
             {
-                await _projectManager.DeleteTesterFromProjectsAsync(tester);
-                await _projectTaskManager.DeleteTesterFromTasksAsync(tester);
-                await DeleteAsync(tester.Id);
+                await Service.DeleteTesterAsync(tester);
             }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-            throw;
-        }
-    }
-
-    public async Task<User> GetTesterByName(string name)
-    {
-        try
-        {
-            var tester = await Service.GetTesterByName(name);
-
-            return tester;
         }
         catch (Exception ex)
         {
