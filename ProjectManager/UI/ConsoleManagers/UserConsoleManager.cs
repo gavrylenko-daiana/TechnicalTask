@@ -185,41 +185,6 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
         }
     }
 
-    public async Task SendMessageEmailUser(string email, string messageEmail)
-    {
-        try
-        {
-            await Service.SendMessageEmailUserAsync(email, messageEmail);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-            throw;
-        }
-    }
-
-    public async Task<User> AuthenticateUser(string userInput, string password)
-    {
-        User getUser = await Service.Authenticate(userInput, password);
-
-        return getUser;
-    }
-
-    public async Task<User> GetUserByUsernameOrEmailAsync(string input)
-    {
-        try
-        {
-            var getUser = await Service.GetUserByUsernameOrEmail(input);
-
-            return getUser;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-            throw;
-        }
-    }
-
     public async Task<ProjectTask> AddFileToTaskAsync()
     {
         try
@@ -236,6 +201,8 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
                 catch
                 {
                     Console.WriteLine("Tasks list is empty");
+
+                    return null!;
                 }
 
                 Console.WriteLine("Select the task to which you want to attach your file.\nName of task:");
@@ -245,9 +212,9 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
                 {
                     try
                     {
-                        var projectTask = await _projectTaskManager.GetTaskByNameAsync(nameOfTask);
-                        await _projectTaskManager.AddFileFromUserAsync(path, projectTask);
-
+                        var projectTask = await Service.GetTaskByNameAsync(nameOfTask);
+                        await Service.AddFileFromUserAsync(path, projectTask);
+                        
                         return projectTask;
                     }
                     catch (Exception ex)
@@ -269,7 +236,54 @@ public class UserConsoleManager : ConsoleManager<IUserService, User>, IConsoleMa
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            Console.WriteLine(ex.Message);
+            throw;
+        }
+    }
+    
+    public async Task UpdateUserAsync(User user)
+    {
+        try
+        {
+            while (true)
+            {
+                Console.WriteLine("\nSelect which information you want to change: ");
+                Console.WriteLine("1. Username");
+                Console.WriteLine("2. Password");
+                Console.WriteLine("3. Email");
+                Console.WriteLine("4. Exit");
+
+                Console.Write("Enter the operation number: ");
+                string input = Console.ReadLine()!;
+
+                switch (input)
+                {
+                    case "1":
+                        Console.Write("Please, edit your username.\nYour name: ");
+                        user.Username = Console.ReadLine()!;
+                        Console.WriteLine("Username was successfully edited");
+                        break;
+                    case "2":
+                        await UpdateUserPassword(user);
+                        break;
+                    case "3":
+                        Console.Write("Please, edit your email.\nYour email: ");
+                        user.Email = Console.ReadLine()!;
+                        Console.WriteLine("Your email was successfully edited");
+                        break;
+                    case "4":
+                        return;
+                    default:
+                        Console.WriteLine("Invalid operation number.");
+                        break;
+                }
+
+                await UpdateAsync(user.Id, user);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
             throw;
         }
     }

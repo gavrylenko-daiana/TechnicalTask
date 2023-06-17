@@ -5,7 +5,6 @@ using UI.Interfaces;
 
 namespace UI.ConsoleManagers;
 
-// Добавить цветную консоль
 public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, User>, IConsoleManager<User>
 {
     private readonly UserConsoleManager _userConsoleManager;
@@ -72,43 +71,7 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
     {
         try
         {
-            await DisplayInfoStakeHolderAndProjectAsync(stakeHolder);
-
-            while (true)
-            {
-                Console.WriteLine("\nSelect which information you want to change: ");
-                Console.WriteLine("1. Username");
-                Console.WriteLine("2. Password");
-                Console.WriteLine("3. Email");
-                Console.WriteLine("4. Exit");
-
-                Console.Write("Enter the operation number: ");
-                string input = Console.ReadLine()!;
-
-                switch (input)
-                {
-                    case "1":
-                        Console.Write("Please, edit your username.\nYour name: ");
-                        stakeHolder.Username = Console.ReadLine()!;
-                        Console.WriteLine("Username was successfully edited");
-                        break;
-                    case "2":
-                        await _userConsoleManager.UpdateUserPassword(stakeHolder);
-                        break;
-                    case "3":
-                        Console.Write("Please, edit your email.\nYour email: ");
-                        stakeHolder.Email = Console.ReadLine()!;
-                        Console.WriteLine("Your email was successfully edited");
-                        break;
-                    case "4":
-                        return;
-                    default:
-                        Console.WriteLine("Invalid operation number.");
-                        break;
-                }
-
-                await UpdateAsync(stakeHolder.Id, stakeHolder);
-            }
+            await _userConsoleManager.UpdateUserAsync(stakeHolder);
         }
         catch (Exception ex)
         {
@@ -141,9 +104,16 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
 
     private async Task AddFileToTask(User stakeHolder)
     {
-        var task = await _userConsoleManager.AddFileToTaskAsync();
-        var project = await _projectManager.GetProjectByTaskAsync(task);
-        await _projectManager.UpdateAsync(project.Id, project);
+        try
+        {
+            var task = await _userConsoleManager.AddFileToTaskAsync();
+            await Service.UpdateProjectByTask(task);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            throw;
+        }
     }
 
     private async Task UpdateProjectAsync(User stakeHolder)
@@ -165,7 +135,7 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
 
             if (choice == 1)
             {
-                await _projectManager.DeleteProjectAsync(projectName);
+                await Service.DeleteProjectAsync(projectName);
             }
         }
         catch (Exception ex)
@@ -184,8 +154,7 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
 
             if (choice == 1)
             {
-                await _projectManager.DeleteProjectsWithSteakHolderAsync(stakeHolder);
-                await DeleteAsync(stakeHolder.Id);
+                await Service.DeleteStakeHolder(stakeHolder);
             }
         }
         catch (Exception ex)
@@ -199,7 +168,7 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
     {
         try
         {
-            var projects = await _projectManager.GetProjectsByStakeHolder(stakeHolder);
+            var projects = await Service.GetProjectsByStakeHolder(stakeHolder);
 
             if (projects == null)
             {
@@ -219,7 +188,7 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
 
                     if (option == 1)
                     {
-                        await _projectManager.DeleteCurrentTaskAsync(task);
+                        await Service.DeleteCurrentTask(task);
                     }
                 }
             }
@@ -239,7 +208,7 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
             Console.Write("Please, write name of project.\nName: ");
             string projectName = Console.ReadLine()!;
             
-            if (await _projectManager.ProjectIsAlreadyExistAsync(projectName)) return;
+            if (await Service.ProjectIsAlreadyExistAsync(projectName)) return;
 
             string projectDescription;
             Console.WriteLine("Optionally add a description to the project.\nPress 'Enter' to add");
@@ -252,27 +221,19 @@ public class StakeHolderConsoleManager : ConsoleManager<IStakeHolderService, Use
 
             Console.Write("Enter a due date for the project.\nDue date (dd.MM.yyyy): ");
             string[] date = Console.ReadLine()!.Split('.');
-            DateTime enteredDate = new DateTime(int.Parse(date[2]), int.Parse(date[1]), int.Parse(date[0]));
-
+            DateTime enteredDate = await Service.UpdateDueDateInProjectAsync(date);
             await _testerManager.DisplayNameOfAllTester();
             Console.Write("\nWrite the username of the person who will be the tester for this project.\nTester: ");
             string testerName = Console.ReadLine()!;
-
-            var tester = await _testerManager.GetTesterByName(testerName);
+            var tester = await Service.GetTesterByNameAsync(testerName);
+            
             if (tester == null)
             {
                 Console.WriteLine(nameof(tester));
                 return;
             }
 
-            await _projectManager.CreateAsync(new Project
-            {
-                Name = projectName,
-                Description = projectDescription,
-                StakeHolder = stakeHolder,
-                DueDates = enteredDate,
-                Tester = tester
-            });
+            await Service.CreateProjectAsync(projectName, projectDescription, stakeHolder, enteredDate, tester);
         }
         catch (Exception ex)
         {
