@@ -19,63 +19,135 @@ public class DeveloperService : GenericService<User>, IDeveloperService
     {
         if (string.IsNullOrWhiteSpace(input)) throw new ArgumentNullException(nameof(input));
 
-        User stakeHolder = await GetByPredicate(u => u.Role == UserRole.Developer && (u.Username == input  || u.Email == input));
+        try
+        {
+            User stakeHolder = await GetByPredicate(u => u.Role == UserRole.Developer && (u.Username == input  || u.Email == input));
         
-        if (stakeHolder == null) throw new ArgumentNullException(nameof(stakeHolder));
+            if (stakeHolder == null) throw new ArgumentNullException(nameof(stakeHolder));
 
-        return stakeHolder;
+            return stakeHolder;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
     
     public async Task<IEnumerable<User>> GetAllDeveloper()
     {
-        var developer = (await GetAll()).Where(u => u.Role == UserRole.Developer);
+        try
+        {
+            var developer = (await GetAll()).Where(u => u.Role == UserRole.Developer);
 
-        return developer;
+            return developer;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
     
     public async Task UpdateProjectByTask(ProjectTask task)
     {
-        var project = await _projectService.GetProjectByTask(task);
-        await _projectService.UpdateProject(project);
+        if (task == null) throw new ArgumentNullException(nameof(task));
+        
+        try
+        {
+            var project = await _projectService.GetProjectByTask(task);
+            await _projectService.UpdateProject(project);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
     
     private async Task<Project> GetProjectByTaskAsync(ProjectTask task)
     {
-        var project = await _projectService.GetProjectByTask(task);
+        if (task == null) throw new ArgumentNullException(nameof(task));
+        
+        try
+        {
+            var project = await _projectService.GetProjectByTask(task);
 
-        return project;
+            return project;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
 
     public async Task UpdateProgressToWaitTester(ProjectTask task)
     {
-        task.Progress = Progress.WaitingTester;
-        await _projectTaskService.Update(task.Id, task);
-        var project = await GetProjectByTaskAsync(task);
-        project.Tasks.First(t => t.Id == task.Id).Progress = Progress.WaitingTester;
-        await _projectService.Update(project.Id, project);
+        if (task == null) throw new ArgumentNullException(nameof(task));
+        
+        try
+        {
+            task.Progress = Progress.WaitingTester;
+            await _projectTaskService.Update(task.Id, task);
+            var project = await GetProjectByTaskAsync(task);
+            project.Tasks.First(t => t.Id == task.Id).Progress = Progress.WaitingTester;
+            await _projectService.Update(project.Id, project);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
 
     public async Task<Project> GetProjectByNameAsync(string projectName)
     {
-        var project = await _projectService.GetProjectByName(projectName);
+        if (string.IsNullOrWhiteSpace(projectName)) throw new ArgumentNullException(nameof(projectName));
+        
+        try
+        {
+            var project = await _projectService.GetProjectByName(projectName);
 
-        return project;
+            return project;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
     
     public async Task SendMailToUserAsync(string email, string message)
     {
-        await _projectService.SendMailToUser(email, message);
+        if (string.IsNullOrWhiteSpace(email)) throw new ArgumentNullException(nameof(email));
+        if (string.IsNullOrWhiteSpace(message)) throw new ArgumentNullException(nameof(message));
+        
+        try
+        {
+            await _projectService.SendMailToUser(email, message);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
 
     public async Task TakeTaskByDeveloper(ProjectTask task, User developer)
     {
-        task.Developer = developer;
-        task.Progress = Progress.InProgress;
-        await _projectTaskService.Update(task.Id, task);
+        if (task == null) throw new ArgumentNullException(nameof(task));
+        if (developer == null) throw new ArgumentNullException(nameof(developer));
+        
+        try
+        {
+            task.Developer = developer;
+            task.Progress = Progress.InProgress;
+            await _projectTaskService.Update(task.Id, task);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
     
     public async Task<List<ProjectTask>> GetDeveloperTasks(User developer)
     {
+        if (developer == null) throw new ArgumentNullException(nameof(developer));
+        
         try
         {
             var tasks = await _projectTaskService.GetTasksByDeveloper(developer);
@@ -90,8 +162,17 @@ public class DeveloperService : GenericService<User>, IDeveloperService
 
     public async Task DeleteDeveloperFromTasks(User developer)
     {
-        var tasks = await GetDeveloperTasks(developer);
-        await _projectTaskService.DeleteDeveloperFromTasksAsync(tasks);
-        await Delete(developer.Id);
+        if (developer == null) throw new ArgumentNullException(nameof(developer));
+        
+        try
+        {
+            var tasks = await GetDeveloperTasks(developer);
+            await _projectTaskService.DeleteDeveloperFromTasksAsync(tasks);
+            await Delete(developer.Id);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
 }
