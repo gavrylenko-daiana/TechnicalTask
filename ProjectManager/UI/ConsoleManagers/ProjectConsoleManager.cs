@@ -63,46 +63,6 @@ public class ProjectConsoleManager : ConsoleManager<IProjectService, Project>, I
         }
     }
 
-    public async Task ChooseProjectToAddTasks(User stakeHolder)
-    {
-        try
-        {
-            await DisplayProjectsAsync(stakeHolder);
-
-            Console.Write($"\nEnter name of project you want to add tasks.\nName of project: ");
-            var projectName = Console.ReadLine();
-
-            try
-            {
-                var project = await Service.GetProjectByName(projectName!);
-                await CreateTaskForProject(project);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"This name does not exist.");
-            }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-            throw;
-        }
-    }
-
-    private async Task CreateTaskForProject(Project project)
-    {
-        try
-        {
-            var tasks = await _projectTaskManager.CreateTaskAsync(project);
-            await Service.AddTaskToProject(project, tasks);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-            throw;
-        }
-    }
-
     public async Task CheckApproveTasksCountAsync(User stakeHolder)
     {
         var projects = await Service.GetProjectsByStakeHolder(stakeHolder);

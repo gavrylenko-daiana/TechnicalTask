@@ -320,9 +320,10 @@ public class ProjectTaskService : GenericService<ProjectTask>, IProjectTaskServi
     }
 
     public async Task<ProjectTask> CreateTaskAsync(string taskName, string taskDescription, DateTime term,
-        Priority priority, User tester)
+        Priority priority, User tester, User stakeHolder)
     {
         if (tester == null) throw new ArgumentNullException(nameof(tester));
+        if (stakeHolder == null) throw new ArgumentNullException(nameof(stakeHolder));
         if (term == default(DateTime)) throw new ArgumentException("date cannot be empty");
         if (!Enum.IsDefined(typeof(Priority), priority))
             throw new InvalidEnumArgumentException(nameof(priority), (int)priority, typeof(Priority));
@@ -337,7 +338,8 @@ public class ProjectTaskService : GenericService<ProjectTask>, IProjectTaskServi
                 Description = taskDescription,
                 DueDates = term,
                 Priority = priority,
-                Tester = tester
+                Tester = tester,
+                StakeHolder = stakeHolder
             };
             await Add(task);
 

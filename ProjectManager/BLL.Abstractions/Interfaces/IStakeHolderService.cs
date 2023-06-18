@@ -1,3 +1,4 @@
+using Core.Enums;
 using Core.Models;
 
 namespace BLL.Abstractions.Interfaces;
@@ -22,4 +23,17 @@ public interface IStakeHolderService : IGenericService<User>
         DateTime enteredDate, User tester);
 
     Task<User> GetTesterByNameAsync(string name);
+
+    Task<ProjectTask> CreateTask(string taskName, string taskDescription, DateTime term, Priority priority,
+        User tester, User stakeHolder);
+
+    Task AddTaskToProjectAsync(Project project, List<ProjectTask> tasks);
+
+    Task<Project> GetProjectByNameAsync(string projectName);
+
+    Task<Priority> GetPriorityAsync(int choice, Priority priority);
+
+    Task<DateTime> CreateDueDateForTaskAsync(Project project, string[] date);
+
+    Task<bool> ProjectTaskIsAlreadyExistAsync(string taskName);
 }

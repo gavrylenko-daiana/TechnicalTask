@@ -10,7 +10,7 @@ public interface IDeveloperService : IGenericService<User>
 
     Task<Project> GetProjectByNameAsync(string projectName);
 
-    Task TakeTaskByDeveloper(ProjectTask task, User developer);
+    Task TakeTaskByDeveloper(ProjectTask task, User developer, Project project);
 
     Task SendMailToUserAsync(string email, string message);
 
