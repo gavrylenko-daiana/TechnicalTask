@@ -11,41 +11,6 @@ public class ProjectTaskConsoleManager : ConsoleManager<IProjectTaskService, Pro
     {
     }
 
-    public async Task<List<ProjectTask>> CreateTaskAsync(Project project)
-    {
-        var tasks = new List<ProjectTask>();
-        string exit = String.Empty;
-
-        while (exit != "exit")
-        {
-            Console.WriteLine("Create task");
-            Console.Write("Please, write name of task.\nName: ");
-            string taskName = Console.ReadLine()!;
-
-            if (await Service.ProjectTaskIsAlreadyExist(taskName)) return null!;
-
-            Console.Write("Please, write description.\nDescription: ");
-            string taskDescription = Console.ReadLine()!;
-            Console.Write("Enter a due date for the task.\n" +
-                          "(Please note that the deadline should not exceed the deadline for the implementation of the project itself. Otherwise, the term will be set automatically - the maximum.)\n" +
-                          "Due date (dd.MM.yyyy): ");
-            string[] date = Console.ReadLine()!.Split('.');
-            var term = await Service.CreateDueDateForTask(project, date);
-            var priority = Priority.Low;
-            Console.WriteLine("Select task priority: \n1) Urgent; 2) High; 3) Medium; 4) Low; 5) Minor;");
-            int choice = int.Parse(Console.ReadLine()!);
-            priority = await Service.GetPriority(choice, priority);
-
-            var item = await Service.CreateTaskAsync(taskName, taskDescription, term, priority, project.Tester);
-
-            tasks.Add(item);
-            Console.WriteLine("Are you want to add next task in this project?\nWrite 'exit' - No, Press 'Enter' - yes");
-            exit = Console.ReadLine()!;
-        }
-
-        return tasks;
-    }
-
     public async Task DisplayTaskAsync(ProjectTask task)
     {
         Console.WriteLine($"\nName: {task.Name}");

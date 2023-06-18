@@ -84,7 +84,7 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
 
                         if (choice == 1)
                         {
-                            await Service.TakeTaskByDeveloper(task, developer);
+                            await Service.TakeTaskByDeveloper(task, developer, project);
                             await _projectManager.UpdateAsync(project.Id, project);
 
                             await Service.SendMailToUserAsync(developer.Email, "The task has been changed from Planned to InProgress");
@@ -105,7 +105,7 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
 
     private async Task SendToSubmitByTesterAsync(User developer)
     {
-        var tasks = await Service.GetDeveloperTasks(developer);
+        var tasks = await Service.GetTasksAnotherDeveloperAsync(developer);
 
         if (tasks.Any())
         {

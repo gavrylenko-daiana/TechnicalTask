@@ -9,7 +9,10 @@ public interface IProjectTaskService : IGenericService<ProjectTask>
 
     // Task<ProjectTask> GetTaskAfterCreating();
     Task AddFileToDirectory(string sourceFilePath, ProjectTask projectTask);
+    
     Task<List<ProjectTask>> GetTasksByDeveloper(User developer);
+
+    Task<List<ProjectTask>> GetTasksAnotherDeveloper(User developer);
 
     Task<List<ProjectTask>> GetTasksByTester(User tester);
     
@@ -35,6 +38,6 @@ public interface IProjectTaskService : IGenericService<ProjectTask>
 
     Task<DateTime> CreateDueDateForTask(Project project, string[] date);
 
-    Task<ProjectTask> CreateTaskAsync(string taskName, string taskDescription, DateTime term, Priority priority,
-        User tester);
+    Task<ProjectTask> CreateTaskAsync(string taskName, string taskDescription, DateTime term,
+        Priority priority, User tester, User stakeHolder);
 }

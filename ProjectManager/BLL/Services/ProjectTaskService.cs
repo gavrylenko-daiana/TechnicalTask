@@ -82,7 +82,23 @@ public class ProjectTaskService : GenericService<ProjectTask>, IProjectTaskServi
 
         try
         {
-            var tasks = (await GetAll()).Where(t => t.Developer != null && t.Developer.Id == developer.Id).ToList();
+            var tasks = (await GetAll()).Where(t => t.Developer != null && t.Developer.Id == developer.Id && t.Progress == Progress.InProgress).ToList();
+
+            return tasks;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+    }
+
+    public async Task<List<ProjectTask>> GetTasksAnotherDeveloper(User developer)
+    {
+        if (developer == null) throw new ArgumentNullException(nameof(developer));
+
+        try
+        {
+            var tasks = (await GetAll()).Where(t => t.Developer != null && t.Developer.Id != developer.Id && t.Progress == Progress.InProgress).ToList();
 
             return tasks;
         }
@@ -304,9 +320,10 @@ public class ProjectTaskService : GenericService<ProjectTask>, IProjectTaskServi
     }
 
     public async Task<ProjectTask> CreateTaskAsync(string taskName, string taskDescription, DateTime term,
-        Priority priority, User tester)
+        Priority priority, User tester, User stakeHolder)
     {
         if (tester == null) throw new ArgumentNullException(nameof(tester));
+        if (stakeHolder == null) throw new ArgumentNullException(nameof(stakeHolder));
         if (term == default(DateTime)) throw new ArgumentException("date cannot be empty");
         if (!Enum.IsDefined(typeof(Priority), priority))
             throw new InvalidEnumArgumentException(nameof(priority), (int)priority, typeof(Priority));
@@ -321,7 +338,8 @@ public class ProjectTaskService : GenericService<ProjectTask>, IProjectTaskServi
                 Description = taskDescription,
                 DueDates = term,
                 Priority = priority,
-                Tester = tester
+                Tester = tester,
+                StakeHolder = stakeHolder
             };
             await Add(task);
 
