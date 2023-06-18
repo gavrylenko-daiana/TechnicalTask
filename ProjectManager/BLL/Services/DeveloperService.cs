@@ -127,7 +127,7 @@ public class DeveloperService : GenericService<User>, IDeveloperService
         }
     }
 
-    public async Task TakeTaskByDeveloper(ProjectTask task, User developer)
+    public async Task TakeTaskByDeveloper(ProjectTask task, User developer, Project project)
     {
         if (task == null) throw new ArgumentNullException(nameof(task));
         if (developer == null) throw new ArgumentNullException(nameof(developer));
@@ -136,6 +136,7 @@ public class DeveloperService : GenericService<User>, IDeveloperService
         {
             task.Developer = developer;
             task.Progress = Progress.InProgress;
+            project.Developers.Add(developer);
             await _projectTaskService.Update(task.Id, task);
         }
         catch (Exception ex)
