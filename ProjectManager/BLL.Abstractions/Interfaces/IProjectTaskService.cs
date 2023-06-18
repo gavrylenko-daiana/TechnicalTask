@@ -11,6 +11,8 @@ public interface IProjectTaskService : IGenericService<ProjectTask>
     Task AddFileToDirectory(string sourceFilePath, ProjectTask projectTask);
     Task<List<ProjectTask>> GetTasksByDeveloper(User developer);
 
+    Task<List<ProjectTask>> GetTasksAnotherDeveloper(User developer);
+
     Task<List<ProjectTask>> GetTasksByTester(User tester);
     
     Task<List<ProjectTask>> GetWaitTasksByTester(User tester);

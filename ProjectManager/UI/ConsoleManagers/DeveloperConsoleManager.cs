@@ -105,7 +105,7 @@ public class DeveloperConsoleManager : ConsoleManager<IDeveloperService, User>, 
 
     private async Task SendToSubmitByTesterAsync(User developer)
     {
-        var tasks = await Service.GetDeveloperTasks(developer);
+        var tasks = await Service.GetTasksAnotherDeveloperAsync(developer);
 
         if (tasks.Any())
         {

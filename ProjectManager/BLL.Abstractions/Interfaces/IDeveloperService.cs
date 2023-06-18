@@ -16,5 +16,7 @@ public interface IDeveloperService : IGenericService<User>
 
     Task<List<ProjectTask>> GetDeveloperTasks(User developer);
 
+    Task<List<ProjectTask>> GetTasksAnotherDeveloperAsync(User developer);
+
     Task DeleteDeveloperFromTasks(User developer);
 }

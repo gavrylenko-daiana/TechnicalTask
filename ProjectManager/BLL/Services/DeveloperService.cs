@@ -159,6 +159,22 @@ public class DeveloperService : GenericService<User>, IDeveloperService
             throw new Exception($"Task list is empty.");
         }
     }
+    
+    public async Task<List<ProjectTask>> GetTasksAnotherDeveloperAsync(User developer)
+    {
+        if (developer == null) throw new ArgumentNullException(nameof(developer));
+        
+        try
+        {
+            var tasks = await _projectTaskService.GetTasksAnotherDeveloper(developer);
+            
+            return tasks;
+        }
+        catch
+        {
+            throw new Exception($"Task list is empty.");
+        }
+    }
 
     public async Task DeleteDeveloperFromTasks(User developer)
     {

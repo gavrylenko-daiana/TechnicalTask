@@ -82,7 +82,23 @@ public class ProjectTaskService : GenericService<ProjectTask>, IProjectTaskServi
 
         try
         {
-            var tasks = (await GetAll()).Where(t => t.Developer != null && t.Developer.Id == developer.Id).ToList();
+            var tasks = (await GetAll()).Where(t => t.Developer != null && t.Developer.Id == developer.Id && t.Progress == Progress.InProgress).ToList();
+
+            return tasks;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+    }
+
+    public async Task<List<ProjectTask>> GetTasksAnotherDeveloper(User developer)
+    {
+        if (developer == null) throw new ArgumentNullException(nameof(developer));
+
+        try
+        {
+            var tasks = (await GetAll()).Where(t => t.Developer != null && t.Developer.Id != developer.Id && t.Progress == Progress.InProgress).ToList();
 
             return tasks;
         }
