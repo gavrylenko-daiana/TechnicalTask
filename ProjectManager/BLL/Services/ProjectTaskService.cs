@@ -35,8 +35,7 @@ public class ProjectTaskService : GenericService<ProjectTask>, IProjectTaskServi
 
         try
         {
-            const string pathToFolder =
-                "/Users/dayanagavrylenko/Desktop/Web/dotNet/github/Technical-Task/ProjectManager/UI/bin/Debug/net6.0/DirectoryForUser";
+            const string pathToFolder = "DirectoryForUser";
 
             if (!Directory.Exists(pathToFolder))
             {
